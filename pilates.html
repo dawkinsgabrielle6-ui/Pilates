@@ -1325,5 +1325,138 @@
       });
     }
   </script>
+  <!-- ===== INTERACTIVE SOUND (paste this whole block just before </body>) ===== -->
+<script>
+(function () {
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  var ctx = null, master = null, muted = false;
+
+  function ensure() {
+    if (!ctx) {
+      ctx = new AC();
+      master = ctx.createGain();
+      master.gain.value = muted ? 0 : 0.8;
+      master.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  // one soft musical note
+  function tone(freq, when, dur, type, vol) {
+    var t = ctx.currentTime + (when || 0);
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.15, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + (dur || 0.3));
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + (dur || 0.3) + 0.05);
+  }
+
+  // airy paper "whoosh"
+  function whoosh(when, dur, from, to) {
+    var t = ctx.currentTime + (when || 0), len = dur || 0.5;
+    var buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * len), ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    var src = ctx.createBufferSource(); src.buffer = buf;
+    var f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.9;
+    f.frequency.setValueAtTime(from || 500, t);
+    f.frequency.exponentialRampToValueAtTime(to || 3200, t + len);
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.18, t + len * 0.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    src.connect(f); f.connect(g); g.connect(master);
+    src.start(t);
+  }
+
+  var C = { C5:523.25, D5:587.33, E5:659.25, G5:783.99, A5:880, C6:1046.5, E6:1318.5, G6:1568, C7:2093 };
+  function arp(notes, gap, vol) {
+    notes.forEach(function (n, i) { tone(n, i * gap, 0.5, 'sine', vol || 0.13); tone(n * 2, i * gap, 0.25, 'triangle', 0.04); });
+  }
+
+  var sounds = {
+    open: function () {            // envelope opens, card slides out
+      whoosh(0, 0.55, 400, 3000);
+      tone(880, 0, 0.12, 'sine', 0.14);
+      arp([C.C6, C.E6, C.G6, C.C7], 0.09, 0.12);
+      setTimeout(function () { if (ctx) arp([C.C6, C.E6, C.G6, C.C7], 0.08, 0.1); }, 820);
+    },
+    pack: function (n) {           // pitch climbs with each item packed
+      var base = [C.E5, C.G5, C.C6][Math.min(n, 3) - 1] || C.E5;
+      tone(base, 0, 0.18, 'sine', 0.16); tone(base * 1.5, 0.06, 0.18, 'triangle', 0.08);
+    },
+    unpack: function () { tone(440, 0, 0.12, 'sine', 0.1); },
+    allPacked: function () { arp([C.C5, C.E5, C.G5, C.C6, C.E6], 0.07, 0.13); },
+    vibe: function () { tone(C.A5, 0, 0.1, 'sine', 0.12); tone(C.E6, 0.05, 0.12, 'sine', 0.08); },
+    cheer: function () {           // champagne clink + sparkle
+      tone(2400, 0, 0.35, 'sine', 0.12); tone(3200, 0.03, 0.3, 'sine', 0.08);
+      whoosh(0.05, 0.25, 2000, 6000);
+      arp([C.G6, C.C7], 0.07, 0.08);
+    },
+    yes: function () {             // happy celebration fanfare
+      arp([C.C5, C.E5, C.G5, C.C6, C.E6, C.G6], 0.08, 0.14);
+      tone(C.C6, 0.55, 0.7, 'triangle', 0.1); tone(C.E6, 0.55, 0.7, 'triangle', 0.08); tone(C.G6, 0.55, 0.7, 'triangle', 0.07);
+    },
+    no: function () {              // gentle, warm goodbye
+      tone(C.G5, 0, 0.4, 'sine', 0.11); tone(C.E5, 0.22, 0.5, 'sine', 0.11); tone(C.C5, 0.46, 0.7, 'sine', 0.1);
+    },
+    oops: function () { tone(220, 0, 0.14, 'sine', 0.13); tone(196, 0.12, 0.2, 'sine', 0.11); },
+    replay: function () { whoosh(0, 0.45, 3000, 400); tone(C.G5, 0.3, 0.2, 'sine', 0.08); },
+    ding: function () { tone(C.C6, 0, 0.35, 'sine', 0.14); tone(C.G6, 0.1, 0.5, 'sine', 0.12); },
+    copy: function () { tone(1200, 0, 0.06, 'square', 0.05); tone(1800, 0.07, 0.12, 'sine', 0.1); },
+    exit: function () { tone(C.E5, 0, 0.3, 'sine', 0.1); tone(C.C5, 0.15, 0.5, 'sine', 0.1); }
+  };
+
+  function play(name, arg) {
+    try { ensure(); sounds[name](arg); } catch (e) {}
+  }
+
+  // listen at the capture phase so nothing in the invitation has to change
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    function hit(sel) { return t.closest && t.closest(sel); }
+    var nameEl = document.getElementById('guestNameInput');
+    var hasName = !nameEl || nameEl.value.trim().length > 0;
+
+    if (hit('#waxSealBtn, #tapPromptBtn')) return play('open');
+    if (hit('.pack-item')) {
+      var btn = hit('.pack-item');
+      return setTimeout(function () {
+        var n = document.querySelectorAll('.pack-item.checked').length;
+        if (btn.classList.contains('checked')) { play('pack', n); if (n === 3) setTimeout(function(){ play('allPacked'); }, 250); }
+        else play('unpack');
+      }, 0);
+    }
+    if (hit('.vibe-pill')) return play('vibe');
+    if (hit('#cheerBtn')) return play('cheer');
+    if (hit('#rsvpYesBtn')) return play(hasName ? 'yes' : 'oops');
+    if (hit('#rsvpNoBtn')) return play(hasName ? 'no' : 'oops');
+    if (hit('#replayEnvelopeBtn, #reopenInviteBtn, [onclick*="replayEntireInvitation"]')) return play('replay');
+    if (hit('a[href*="momence.com"]')) return play('ding');
+    if (hit('#copyDetailsBtn')) return play('copy');
+    if (hit('#exitInviteBtn')) return play('exit');
+  }, true);
+
+  // small mute / unmute bubble (bottom-left)
+  var mb = document.createElement('button');
+  mb.type = 'button';
+  mb.setAttribute('aria-label', 'Toggle sound');
+  mb.textContent = '🔊';
+  mb.style.cssText = 'position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:100;width:42px;height:42px;border-radius:50%;border:2px solid #fff;background:#ff57a8;color:#fff;font-size:18px;cursor:pointer;box-shadow:0 6px 14px rgba(219,29,107,.35)';
+  mb.addEventListener('click', function () {
+    muted = !muted;
+    mb.textContent = muted ? '🔇' : '🔊';
+    if (master) master.gain.value = muted ? 0 : 0.8;
+    if (!muted) play('vibe');
+  });
+  document.body.appendChild(mb);
+})();
+</script>
+<!-- ===== END SOUND ===== -->
 </body>
 </html>
