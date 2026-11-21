@@ -1,1331 +1,530 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gabrielle's 20th Birthday — Hot Pilates Sculpt</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Playfair Display, Pacifico, Quicksand, and Plus Jakarta Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
-  <!-- Canvas Confetti for celebratory pink sparkles -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-  <!-- Supabase JS v2 CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Font Awesome for crisp icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gabrielle's 20th Birthday — Hot Pilates Sculpt</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<script>
+tailwind.config = { theme: { extend: {
+  fontFamily: { sans:['"Plus Jakarta Sans"','sans-serif'], serif:['"Playfair Display"','serif'], script:['"Pacifico"','cursive'], quicksand:['"Quicksand"','sans-serif'] },
+  colors: { gold:{300:'#f7d774',400:'#e8b93c',500:'#d4a017'}, blush: {50:'#fff0f7',100:'#ffd9ec',200:'#ffb3d9',300:'#ff85c0',400:'#ff52a6',500:'#ff2e93',600:'#e0147a',700:'#b30a5f'} }
+}}}
+</script>
+<style>
+:root { --pink:#ff2e93; --pink-soft:#ff85c0; --black:#000; }
+body {
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 0%, rgba(255,46,147,.35) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(255,46,147,.22) 0%, transparent 70%),
+    #000;
+  min-height:100dvh; overflow-x:hidden;
+}
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-            serif: ['"Playfair Display"', 'serif'],
-            script: ['"Pacifico"', 'cursive'],
-            quicksand: ['"Quicksand"', 'sans-serif'],
-          },
-          colors: {
-            blush: {
-              50: '#FFF5F8',
-              100: '#FFE6EF',
-              200: '#FFCCE0',
-              300: '#FFA3C7',
-              400: '#FF6BA6',
-              500: '#F43F8A',
-              600: '#DB1D6B',
-              700: '#B81054',
-            },
-            rosegold: {
-              light: '#F9E4DC',
-              DEFAULT: '#D49A89',
-              dark: '#B57463',
-            }
-          }
-        }
-      }
-    }
-  </script>
+/* ---------- envelope intro ---------- */
+.envelope-wrapper { perspective:1200px; transition:opacity .65s ease, transform .65s cubic-bezier(.22,1,.36,1); }
+@keyframes wiggle { 0%,70%,100%{transform:rotate(0)} 76%{transform:rotate(-3deg)} 82%{transform:rotate(3deg)} 88%{transform:rotate(-2deg)} 94%{transform:rotate(2deg)} }
+.wiggle { animation:wiggle 4s ease-in-out infinite; width:100%; display:flex; justify-content:center; }
+.envelope-open-state .wiggle { animation:none; }
+.envelope-box {
+  position:relative; width:100%; max-width:370px; aspect-ratio:1.08/1; background:#ff2e93; border-radius:14px;
+  box-shadow:0 20px 50px rgba(255,46,147,.45), 0 0 0 3px #000, 0 0 0 5px #ff85c0;
+  overflow:hidden; transition:transform .18s ease-out; cursor:pointer;
+}
+.envelope-inner-bg { position:absolute; inset:0; background:#ffc2e0; z-index:2; }
+.flap-left,.flap-right { position:absolute; inset:0; background:#ff6bb5; z-index:12; }
+.flap-left { clip-path:polygon(0 0,50% 50%,0 100%); }
+.flap-right { clip-path:polygon(100% 0,50% 50%,100% 100%); }
+.flap-bottom { position:absolute; inset:0; background:#0b0b0b; clip-path:polygon(0 100%,0 76%,50% 34%,100% 76%,100% 100%); z-index:15; }
+.flap-top { position:absolute; top:0; left:0; width:100%; height:56%; background:#ff2e93; clip-path:polygon(0 0,100% 0,50% 100%); transform-origin:top center; transition:transform .75s cubic-bezier(.4,0,.2,1); z-index:20; }
+.envelope-open .flap-top { transform:rotateX(180deg); z-index:4; }
+@keyframes sealPulse {
+  0%,100% { transform:translate(-50%,-50%) scale(1); box-shadow:0 0 0 0 rgba(255,46,147,.7), 0 8px 18px rgba(0,0,0,.5); }
+  50% { transform:translate(-50%,-50%) scale(1.1); box-shadow:0 0 0 14px rgba(255,46,147,0), 0 12px 24px rgba(0,0,0,.6); }
+}
+.wax-seal {
+  position:absolute; top:44%; left:50%; width:82px; height:82px; border-radius:9999px;
+  background:radial-gradient(circle at 32% 28%, #3a3a3a 0%, #111 55%, #000 100%);
+  border:3px solid #ff2e93; animation:sealPulse 1.8s infinite ease-in-out; cursor:pointer; z-index:30;
+  transition:opacity .4s ease, transform .4s ease;
+}
+.envelope-open .wax-seal { opacity:0; pointer-events:none; transform:translate(-50%,-50%) scale(.5); animation:none; }
+#tapPromptBtn { transition:opacity .35s ease; }
 
-  <style>
-    /* Custom Envelope & 3D Card Reveal Animations matching reference image */
-    body {
-      background: linear-gradient(180deg, #ffd1e8 0%, #ffc2e0 82%, #ffe3f1 82%, #ffe3f1 100%);
-      min-height: 100dvh;
-      overflow-x: hidden;
-    }
-    /* Horizontal Card Reveal Animation */
-    .invite-card-container {
-      opacity: 0;
-      transform: translateY(36px) scale(0.95);
-      pointer-events: none;
-      transition: opacity 0.65s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-    }
+/* ---------- invitation card ---------- */
+.invite-card-container { opacity:0; transform:translateY(40px) scale(.95); pointer-events:none; transition:opacity .65s ease, transform .7s cubic-bezier(.22,1,.36,1); }
+.invite-card-container.visible { opacity:1; transform:none; pointer-events:auto; }
+.landscape-postcard { background:#000; box-shadow:0 30px 80px -10px rgba(255,46,147,.5), 0 0 0 4px #000, 0 0 0 7px #ff2e93; }
+.ticket-stub-left { background:linear-gradient(155deg,#ff4da6 0%,#ff2e93 50%,#d4116f 100%); position:relative; overflow:hidden; }
+.ticket-stub-left::before { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(0,0,0,.14) 1.5px, transparent 1.5px); background-size:16px 16px; pointer-events:none; }
+.right-panel { background:linear-gradient(150deg,#0a0a0a 0%,#150510 60%,#2a0820 100%); position:relative; }
+@media (min-width:768px) { .postcard-divider { border-right:2px dashed #000; } }
+@keyframes floatSlow { 0%,100%{transform:translateY(0) rotate(-4deg)} 50%{transform:translateY(-7px) rotate(6deg)} }
+.float-sparkle { animation:floatSlow 3.2s ease-in-out infinite; }
+.float-sparkle-delay { animation:floatSlow 3.9s ease-in-out 1s infinite; }
+.cute-sticker { background:#000; color:#ff85c0; border:2px solid #fff; box-shadow:0 8px 18px rgba(0,0,0,.4); }
 
-    .invite-card-container.visible {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
-    }
+.dark-input { background:#141414; color:#fff; border:2px solid rgba(255,46,147,.45); }
+.dark-input::placeholder { color:#8a8a8a; }
+.dark-input:focus { border-color:#ff2e93; outline:none; box-shadow:0 0 0 3px rgba(255,46,147,.25); }
 
-    /* Horizontal VIP Postcard Styling */
-    .landscape-postcard {
-      background:
-        radial-gradient(circle at 0% 0%, rgba(255, 110, 180, 0.35) 0%, transparent 42%),
-        radial-gradient(circle at 100% 100%, rgba(244, 63, 138, 0.32) 0%, transparent 45%),
-        linear-gradient(135deg, #fff0f7 0%, #ffe0ef 48%, #ffd1e8 100%);
-      position: relative;
-      box-shadow:
-        0 30px 70px -12px rgba(219, 29, 107, 0.42),
-        0 0 0 4px #ffffff,
-        0 0 0 7px #ff85bf;
-    }
+@keyframes pillPop { 0%{transform:scale(1)} 45%{transform:scale(.96)} 75%{transform:scale(1.02)} 100%{transform:scale(1)} }
+.pack-item { transition:all .25s cubic-bezier(.34,1.56,.64,1); }
+.pack-item.pop { animation:pillPop .35s ease; }
+.pack-item.checked { background:#0b0b0b; border-color:#fff; transform:translateX(3px); }
+.pack-item.checked .pack-title { text-decoration:line-through; text-decoration-color:#ff2e93; color:#ff85c0; }
 
-    /* Celebratory Soirée Invitation Left Panel */
-    .ticket-stub-left {
-      background: linear-gradient(155deg, #ff4d9e 0%, #f43f8a 52%, #d91b6b 100%);
-      position: relative;
-      overflow: hidden;
-    }
+.vibe-pill { transition:all .22s cubic-bezier(.34,1.56,.64,1); background:#141414; color:#ffb3d9; border:1px solid rgba(255,46,147,.5); }
+.vibe-pill:hover { background:#222; }
+.vibe-pill.active { background:linear-gradient(135deg,#ff5ca1,#ff2e93); color:#000; border-color:#ff2e93; transform:translateY(-1px) scale(1.03); box-shadow:0 6px 14px -3px rgba(255,46,147,.6); }
 
-    .ticket-stub-left::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.22) 1.5px, transparent 1.5px);
-      background-size: 16px 16px;
-      pointer-events: none;
-    }
+.btn-hotpink { background:linear-gradient(135deg,#ff4da6,#ff2e93); color:#000; box-shadow:0 10px 22px -6px rgba(255,46,147,.6); transition:transform .2s ease, box-shadow .2s ease; }
+.btn-hotpink:hover { transform:translateY(-2px); box-shadow:0 14px 26px -6px rgba(255,46,147,.8); }
+.btn-hotpink:active { transform:scale(.98); }
+@keyframes softCtaGlow { 0%,100%{box-shadow:0 10px 24px -4px rgba(255,46,147,.55)} 50%{box-shadow:0 14px 34px -2px rgba(255,46,147,.95)} }
+.btn-momence-pulse { animation:softCtaGlow 2.4s infinite ease-in-out; }
 
-    /* Ornamental Gold/White Invitation Divider on Desktop */
-    @media (min-width: 768px) {
-      .postcard-divider {
-        border-right: 2px solid rgba(255, 255, 255, 0.65);
-        box-shadow: 2px 0 12px rgba(219, 29, 107, 0.08);
-        position: relative;
-      }
-      .postcard-divider::before,
-      .postcard-divider::after {
-        content: '✦';
-        position: absolute;
-        right: -13px;
-        width: 24px;
-        height: 24px;
-        border-radius: 9999px;
-        background: #ffffff;
-        color: #db1d6b;
-        font-size: 11px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 10px rgba(219, 29, 107, 0.22);
-        z-index: 25;
-      }
-      .postcard-divider::before {
-        top: 18px;
-      }
-      .postcard-divider::after {
-        bottom: 18px;
-      }
-    }
-
-    /* Floating Sparkle & Heart Ambient Animations */
-    @keyframes floatSlow {
-      0%, 100% { transform: translateY(0px) rotate(-4deg) scale(1); }
-      50% { transform: translateY(-7px) rotate(6deg) scale(1.06); }
-    }
-    .float-sparkle {
-      animation: floatSlow 3.2s ease-in-out infinite;
-    }
-    .float-sparkle-delay {
-      animation: floatSlow 3.9s ease-in-out 1s infinite;
-    }
-
-    /* Glossy Sticker Badge */
-    .cute-sticker {
-      background: linear-gradient(180deg, #ffffff 0%, #fff0f7 100%);
-      border: 2.5px solid #ffffff;
-      box-shadow: 0 8px 18px rgba(190, 24, 93, 0.24);
-    }
-
-    /* Interactive Packing Pill Bounce & Checked State */
-    @keyframes pillPop {
-      0% { transform: scale(1); }
-      45% { transform: scale(0.95); }
-      75% { transform: scale(1.03); }
-      100% { transform: scale(1); }
-    }
-
-    .pack-item {
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .pack-item.pop {
-      animation: pillPop 0.35s ease;
-    }
-
-    .pack-item.checked {
-      background: linear-gradient(135deg, #fff5fa 0%, #ffe0ef 100%);
-      border-color: #ffffff;
-      transform: translateX(3px);
-      box-shadow: 0 6px 16px rgba(136, 19, 55, 0.25);
-    }
-
-    .pack-item.checked .pack-title {
-      text-decoration: line-through;
-      text-decoration-color: #db1d6b;
-      color: #b81054;
-    }
-
-    /* Interactive Vibe Pill Selector */
-    .vibe-pill {
-      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .vibe-pill.active {
-      background: linear-gradient(135deg, #ff5ca1 0%, #db1d6b 100%);
-      color: #ffffff;
-      border-color: #db1d6b;
-      transform: translateY(-1px) scale(1.03);
-      box-shadow: 0 6px 14px -3px rgba(219, 29, 107, 0.45);
-    }
-
-    /* Subtle shimmer button */
-    .btn-hotpink {
-      background: linear-gradient(135deg, #FF4D94 0%, #DB1D6B 100%);
-      box-shadow: 0 10px 22px -6px rgba(219, 29, 107, 0.5);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .btn-hotpink:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 26px -6px rgba(219, 29, 107, 0.62);
-    }
-    .btn-hotpink:active {
-      transform: translateY(0px) scale(0.98);
-    }
-
-    /* Gentle Pulse for Momence CTA */
-    @keyframes softCtaGlow {
-      0%, 100% { box-shadow: 0 10px 24px -4px rgba(219, 29, 107, 0.52); }
-      50% { box-shadow: 0 14px 32px -2px rgba(244, 63, 138, 0.78); }
-    }
-    .btn-momence-pulse {
-      animation: softCtaGlow 2.4s infinite ease-in-out;
-    }
-
-    @keyframes sealPulse {
-      0%, 100% {
-        transform: translate(-50%, -50%) scale(1);
-        box-shadow: 0 8px 18px rgba(190, 24, 93, 0.35), inset 0 3px 8px rgba(255, 255, 255, 0.65);
-      }
-      50% {
-        transform: translate(-50%, -50%) scale(1.06);
-        box-shadow: 0 12px 24px rgba(190, 24, 93, 0.45), inset 0 4px 10px rgba(255, 255, 255, 0.8);
-      }
-    }
-
-    .wax-seal {
-      position: absolute;
-      top: 44%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 78px;
-      height: 78px;
-      border-radius: 9999px;
-      background: radial-gradient(circle at 32% 28%, #ffcce6 0%, #ff6eb4 52%, #d9388a 100%);
-      box-shadow: 0 8px 18px rgba(190, 24, 93, 0.35), inset 0 3px 8px rgba(255, 255, 255, 0.65);
-      animation: sealPulse 2.6s infinite ease-in-out;
-      cursor: pointer;
-      z-index: 30;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-    }
-
-    .wax-seal:active {
-      transform: translate(-50%, -50%) scale(0.94);
-    }
-
-    /* Envelope Geometry — Clean Nearly-Square Rounded Envelope */
-    .envelope-wrapper {
-      perspective: 1200px;
-      transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .envelope-box {
-      position: relative;
-      width: 100%;
-      max-width: 370px;
-      aspect-ratio: 1.08 / 1;
-      background: #ff99c8;
-      border-radius: 12px;
-      box-shadow: 0 18px 40px rgba(219, 39, 119, 0.18);
-      overflow: hidden;
-    }
-
-    /* Inner card peek revealed when top flap folds open */
-    .envelope-inner-bg {
-      position: absolute;
-      inset: 0;
-      background: #ffb3d6;
-      z-index: 2;
-    }
-
-    /* Left & Right Side Flaps (Soft Candy Pink #ff99c8) */
-    .flap-left {
-      position: absolute;
-      inset: 0;
-      background: #ff99c8;
-      clip-path: polygon(0 0, 50% 50%, 0 100%);
-      z-index: 12;
-    }
-
-    .flap-right {
-      position: absolute;
-      inset: 0;
-      background: #ff99c8;
-      clip-path: polygon(100% 0, 50% 50%, 100% 100%);
-      z-index: 12;
-    }
-
-    /* Bottom Overlapping Flap (Vibrant Bubblegum Pink #ff6eb4) */
-    .flap-bottom {
-      position: absolute;
-      inset: 0;
-      background: #ff6eb4;
-      clip-path: polygon(0 100%, 0 76%, 50% 34%, 100% 76%, 100% 100%);
-      z-index: 15;
-    }
-
-    /* Top Triangular Flap (Bright Hot Pink #ff57a8) */
-    .flap-top {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 56%;
-      background: #ff57a8;
-      clip-path: polygon(0 0, 100% 0, 50% 100%);
-      transform-origin: top center;
-      transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.3s;
-      z-index: 20;
-    }
-
-    .envelope-open .flap-top {
-      transform: rotateX(180deg);
-      z-index: 4;
-    }
-
-    .envelope-open .wax-seal {
-      opacity: 0;
-      pointer-events: none;
-      transform: translate(-50%, -50%) scale(0.5);
-    }
-
-    /* Portrait Card Reveal Animation */
-    .invite-card-container {
-      opacity: 0;
-      transform: translateY(45px) scale(0.95);
-      pointer-events: none;
-      transition: opacity 0.65s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .invite-card-container.visible {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
-    }
-
-    /* Tall Portrait Card Styling */
-    .portrait-card {
-      min-height: 680px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    /* Interactive Packing Pill Bounce & Checked State */
-    @keyframes pillPop {
-      0% { transform: scale(1); }
-      45% { transform: scale(0.96); }
-      75% { transform: scale(1.02); }
-      100% { transform: scale(1); }
-    }
-
-    .pack-item {
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .pack-item.pop {
-      animation: pillPop 0.35s ease;
-    }
-
-    .pack-item.checked {
-      background: linear-gradient(135deg, #ffe6ef 0%, #ffd6e7 100%);
-      border-color: #ff6ba6;
-      box-shadow: 0 4px 12px rgba(244, 63, 138, 0.14);
-    }
-
-    .pack-item.checked .pack-title {
-      text-decoration: line-through;
-      text-decoration-color: #f43f8a;
-      color: #b81054;
-    }
-
-    /* Subtle shimmer button */
-    .btn-hotpink {
-      background: linear-gradient(135deg, #FF4D94 0%, #DB1D6B 100%);
-      box-shadow: 0 10px 22px -6px rgba(219, 29, 107, 0.5);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .btn-hotpink:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 26px -6px rgba(219, 29, 107, 0.62);
-    }
-    .btn-hotpink:active {
-      transform: translateY(0px) scale(0.98);
-    }
-
-    /* Custom subtle scrollbars for small viewports */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #FFF5F8;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #FFA3C7;
-      border-radius: 9999px;
-    }
-  </style>
+::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:#000; } ::-webkit-scrollbar-thumb { background:#ff2e93; border-radius:9999px; }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none !important; transition-duration:.01ms !important; } }
+</style>
 </head>
-<body class="text-slate-800 antialiased selection:bg-blush-200 selection:text-blush-700 flex flex-col items-center justify-center p-4 sm:p-6 relative">
+<body class="text-white antialiased selection:bg-blush-500 selection:text-black flex flex-col items-center justify-center p-4 sm:p-6 relative">
 
-  <!-- ========================================================= -->
-  <!-- VIEW 1: CLEAN PASTEL PINK ENVELOPE (MATCHING REFERENCE)   -->
-  <!-- ========================================================= -->
-  <main id="envelopeView" class="envelope-wrapper w-full max-w-[380px] flex flex-col items-center justify-center z-10 my-auto">
-    <!-- Nearly Square Flat-Shaded Pink Envelope (No text on envelope) -->
+<!-- ============ VIEW 1: ENVELOPE ============ -->
+<main id="envelopeView" class="envelope-wrapper w-full max-w-[420px] flex flex-col items-center justify-center z-10 my-auto">
+
+  <div class="text-center mb-7">
+    <div class="font-serif font-bold text-4xl sm:text-5xl leading-tight" style="color:#fff;text-shadow:0 0 26px rgba(255,46,147,.75), 0 2px 0 #000">You're invited</div>
+    <div class="mx-auto mt-3 h-[3px] w-24 rounded-full" style="background:linear-gradient(90deg,#ff85c0,#ff2e93,#ff85c0)"></div>
+  </div>
+
+  <div class="wiggle">
     <div id="envelopeBox" class="envelope-box select-none">
       <div class="envelope-inner-bg"></div>
-
-      <!-- Mini Horizontal Pass Peek When Opened -->
-      <div class="absolute inset-x-4 top-8 bottom-8 bg-white rounded-xl shadow-sm z-10 flex flex-col items-center justify-start pt-4 px-4 border border-pink-100">
-        <span class="text-[9px] font-extrabold uppercase tracking-[0.2em] text-blush-500">VIP PILATES PASS</span>
-        <p class="font-script text-2xl text-blush-600 mt-0.5">Gabrielle's 20th</p>
-        <p class="text-[10px] uppercase tracking-[0.16em] text-slate-400 font-semibold mt-1">Dec 13, 2026 • Core Club</p>
+      <div class="absolute inset-x-4 top-8 bottom-8 bg-black rounded-xl z-10 flex flex-col items-center justify-start pt-4 px-4 border-2 border-blush-500">
+        <span class="text-[9px] font-extrabold uppercase tracking-[0.2em] text-blush-400">VIP PILATES PASS</span>
+        <p class="font-script text-2xl text-white mt-0.5">Gabrielle's 20th</p>
+        <p class="text-[10px] uppercase tracking-[0.16em] text-blush-300 font-semibold mt-1">Dec 13, 2026 • Core Club</p>
       </div>
-
-      <!-- 3-Tone Pink Envelope Flaps -->
       <div class="flap-left"></div>
       <div class="flap-right"></div>
       <div class="flap-bottom"></div>
       <div class="flap-top"></div>
-
-      <!-- 3D Glossy Spherical Heart Seal Button -->
-      <button
-        id="waxSealBtn"
-        type="button"
-        aria-label="Tap the seal to open invitation"
-        class="wax-seal flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-pink-300"
-      >
-        <!-- Layered Glowing Pink/Red Heart SVG -->
-        <svg class="w-10 h-10 drop-shadow-[0_2px_6px_rgba(255,59,107,0.55)]" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <!-- Outer soft pink heart glow -->
-          <path d="M32 55C32 55 8 39.5 8 22.5C8 14.8 14.2 9 21.5 9C26.1 9 30.1 11.3 32 14.8C33.9 11.3 37.9 9 42.5 9C49.8 9 56 14.8 56 22.5C56 39.5 32 55 32 55Z" fill="#ffb3d9" fill-opacity="0.55"/>
-          <!-- Middle light pink heart outline/layer -->
-          <path d="M32 50.5C32 50.5 12 37 12 22.8C12 16.5 17 11.8 23 11.8C26.8 11.8 30.2 13.7 32 16.7C33.8 13.7 37.2 11.8 41 11.8C47 11.8 52 16.5 52 22.8C52 37 32 50.5 32 50.5Z" fill="#ff99cc"/>
-          <!-- Inner vibrant coral-red heart -->
-          <path d="M32 45.5C32 45.5 16.5 34.8 16.5 23.2C16.5 18.4 20.3 14.8 24.9 14.8C27.8 14.8 30.5 16.3 32 18.6C33.5 16.3 36.2 14.8 39.1 14.8C43.7 14.8 47.5 18.4 47.5 23.2C47.5 34.8 32 45.5 32 45.5Z" fill="#ff3b6b"/>
+      <button id="waxSealBtn" type="button" aria-label="Tap the seal to open invitation" class="wax-seal flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-pink-400">
+        <svg class="w-10 h-10" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <path d="M32 55C32 55 8 39.5 8 22.5C8 14.8 14.2 9 21.5 9C26.1 9 30.1 11.3 32 14.8C33.9 11.3 37.9 9 42.5 9C49.8 9 56 14.8 56 22.5C56 39.5 32 55 32 55Z" fill="#ff2e93" fill-opacity=".35"/>
+          <path d="M32 50.5C32 50.5 12 37 12 22.8C12 16.5 17 11.8 23 11.8C26.8 11.8 30.2 13.7 32 16.7C33.8 13.7 37.2 11.8 41 11.8C47 11.8 52 16.5 52 22.8C52 37 32 50.5 32 50.5Z" fill="#ff6bb5"/>
+          <path d="M32 45.5C32 45.5 16.5 34.8 16.5 23.2C16.5 18.4 20.3 14.8 24.9 14.8C27.8 14.8 30.5 16.3 32 18.6C33.5 16.3 36.2 14.8 39.1 14.8C43.7 14.8 47.5 18.4 47.5 23.2C47.5 34.8 32 45.5 32 45.5Z" fill="#ff2e93"/>
         </svg>
       </button>
     </div>
+  </div>
 
-    <!-- Clean Dark-Magenta Prompt Caption Below Envelope -->
-    <button
-      id="tapPromptBtn"
-      type="button"
-      class="mt-5 font-quicksand font-bold text-[15px] tracking-wide text-[#881337] hover:opacity-80 transition active:scale-95 cursor-pointer bg-transparent border-none"
-    >
-      Tap the seal to open ✨
+  <button id="tapPromptBtn" type="button" class="mt-6 font-quicksand font-bold text-base tracking-wide hover:opacity-80 active:scale-95 cursor-pointer bg-transparent border-none" style="color:#fff">
+    Tap the seal to open ✨
+  </button>
+</main>
+
+<!-- ============ VIEW 2: INVITATION ============ -->
+<section id="invitationView" aria-hidden="true" class="invite-card-container hidden w-full max-w-[900px] z-20 my-auto">
+  <div class="flex items-center justify-between mb-3 px-1">
+    <button id="replayEnvelopeBtn" type="button" class="inline-flex items-center gap-1.5 text-xs font-bold text-white hover:text-blush-300 bg-black hover:bg-zinc-900 px-4 py-1.5 rounded-full border border-blush-500 transition active:scale-95 cursor-pointer">
+      <span>↻</span><span>Replay</span>
     </button>
-  </main>
-
-  <!-- ========================================================= -->
-  <!-- VIEW 2: HORIZONTAL LANDSCAPE VIP PILATES INVITATION       -->
-  <!-- ========================================================= -->
-  <section
-    id="invitationView"
-    aria-hidden="true"
-    class="invite-card-container hidden w-full max-w-[900px] z-20 my-auto"
-  >
-    <!-- Top Utility Bar -->
-    <div class="flex items-center justify-between mb-3 px-1">
-      <button
-        id="replayEnvelopeBtn"
-        type="button"
-        class="inline-flex items-center gap-1.5 text-xs font-bold text-blush-600 hover:text-blush-700 bg-white/95 hover:bg-white px-4 py-1.5 rounded-full border border-blush-200 shadow-sm transition active:scale-95 cursor-pointer"
-      >
-        <span>↻</span>
-        <span>Replay</span>
-      </button>
-
-      <div class="inline-flex items-center gap-2 bg-white/95 px-4 py-1.5 rounded-full border border-blush-200 shadow-sm">
-        <span class="w-2 h-2 rounded-full bg-blush-500 animate-ping"></span>
-        <span class="text-[11px] font-extrabold tracking-[0.16em] uppercase text-blush-600">
-          VIP PASS • CHAPTER 20
-        </span>
-      </div>
+    <div class="inline-flex items-center gap-2 bg-black px-4 py-1.5 rounded-full border border-blush-500">
+      <span class="w-2 h-2 rounded-full bg-blush-500 animate-ping"></span>
+      <span class="text-[11px] font-extrabold tracking-[0.16em] uppercase text-blush-300">VIP PASS • CHAPTER 20</span>
     </div>
+  </div>
 
-    <!-- Main Horizontal Landscape Postcard / VIP Pass -->
-    <article class="landscape-postcard rounded-[34px] overflow-hidden">
-      <!-- Two-Column Side-by-Side Horizontal Boarding Pass Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-12 relative">
+  <article class="landscape-postcard rounded-[34px] overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-12 relative">
 
-        <!-- ===================================================== -->
-        <!-- LEFT COLUMN: HOT-PINK GLAM TICKET STUB & GYM TOTE     -->
-        <!-- ===================================================== -->
-        <div class="md:col-span-6 ticket-stub-left postcard-divider p-5 sm:p-7 flex flex-col justify-between gap-4 text-white">
-          <!-- Floating Cute Coquette Stickers -->
-          <div class="cute-sticker float-sparkle pointer-events-none absolute top-4 right-4 w-11 h-11 rounded-2xl flex items-center justify-center text-xl rotate-6 z-20" aria-hidden="true">
-            🎀
+      <!-- LEFT: pink ticket -->
+      <div class="md:col-span-6 ticket-stub-left postcard-divider p-5 sm:p-7 flex flex-col justify-between gap-4 text-white">
+        <div class="cute-sticker float-sparkle pointer-events-none absolute top-4 right-4 w-11 h-11 rounded-2xl flex items-center justify-center text-xl rotate-6 z-20" aria-hidden="true">🎀</div>
+        <div class="cute-sticker float-sparkle-delay pointer-events-none absolute bottom-4 right-4 px-2.5 py-1 rounded-full text-[10px] font-extrabold -rotate-3 z-20" aria-hidden="true">HOT GIRL PILATES 🔥</div>
+
+        <div class="relative z-10 pr-12">
+          <div class="inline-flex items-center gap-1.5 bg-black text-blush-300 px-3.5 py-1 rounded-full text-[10px] font-extrabold tracking-[0.18em] uppercase shadow-sm">
+            <span>✨ YOU'RE INVITED • CHAPTER 20 ✨</span>
           </div>
-          <div class="cute-sticker float-sparkle-delay pointer-events-none absolute bottom-4 right-4 px-2.5 py-1 rounded-full text-[10px] font-extrabold text-blush-600 -rotate-3 z-20" aria-hidden="true">
-            HOT GIRL PILATES 🔥
-          </div>
-
-          <!-- Header & Live Countdown -->
-          <div class="relative z-10 pr-12">
-            <div class="inline-flex items-center gap-1.5 bg-white/25 backdrop-blur-md border border-white/40 text-white px-3.5 py-1 rounded-full text-[10px] font-extrabold tracking-[0.18em] uppercase shadow-sm">
-              <span>✨ YOU'RE INVITED • CHAPTER 20 ✨</span>
-            </div>
-
-            <h1 class="font-serif font-bold text-3xl sm:text-[34px] text-white tracking-tight mt-2.5 leading-[1.08] drop-shadow-sm">
-              Gabrielle's <span class="font-script font-normal text-pink-100 text-[32px] sm:text-[38px]">20th</span><br/>
-              Heated Mat Pilates
-            </h1>
-
-            <p class="mt-2 text-xs sm:text-[13px] text-pink-50/95 font-semibold leading-snug">
-              🥂 Birthday celebration • Heated Mat Pilates • <strong>Dec 8th</strong>
-            </p>
-
-            <!-- Live Countdown Pill -->
-            <div class="mt-3 inline-flex items-center gap-2 bg-black/20 backdrop-blur-sm border border-white/30 rounded-2xl px-3.5 py-1.5">
-              <span class="text-sm">⏳</span>
-              <span id="countdownText" class="text-[11px] font-extrabold tracking-wide text-pink-50">
-                Sun, Dec 13, 2026 • Get Ready to Glow!
-              </span>
-            </div>
-          </div>
-
-          <!-- Event Detail Frosted Glass Pills -->
-          <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <!-- Date Pill -->
-            <div class="bg-white/20 backdrop-blur-md border border-white/35 rounded-2xl p-3 flex items-center gap-2.5 shadow-sm">
-              <div class="w-9 h-9 rounded-xl bg-white text-blush-600 flex items-center justify-center shrink-0 text-base shadow-sm">
-                🗓️
-              </div>
-              <div class="min-w-0">
-                <p class="text-[9px] font-extrabold uppercase tracking-widest text-pink-100">Date</p>
-                <p class="font-extrabold text-white text-xs leading-snug">Sun, Dec 13th, 2026</p>
-              </div>
-            </div>
-
-            <!-- Time Pill -->
-            <div class="bg-white/20 backdrop-blur-md border border-white/35 rounded-2xl p-3 flex items-center gap-2.5 shadow-sm">
-              <div class="w-9 h-9 rounded-xl bg-white text-blush-600 flex items-center justify-center shrink-0 text-base shadow-sm">
-                ⏰
-              </div>
-              <div class="min-w-0">
-                <p class="text-[9px] font-extrabold uppercase tracking-widest text-pink-100">Arrive • Class</p>
-                <p class="font-extrabold text-white text-xs leading-snug">8:45 AM • 9:00 AM</p>
-              </div>
-            </div>
-
-            <!-- Class Cost Pill -->
-            <div class="bg-white/20 backdrop-blur-md border border-white/35 rounded-2xl p-3 flex items-center gap-2.5 shadow-sm">
-              <div class="w-9 h-9 rounded-xl bg-white text-blush-600 flex items-center justify-center shrink-0 text-base shadow-sm">
-                💗
-              </div>
-              <div class="min-w-0">
-                <p class="text-[9px] font-extrabold uppercase tracking-widest text-pink-100">Heated Mat Class</p>
-                <p class="font-extrabold text-white text-xs leading-snug">$3,500 per spot</p>
-              </div>
-            </div>
-
-            <!-- RSVP Deadline Pill -->
-            <div class="bg-white/20 backdrop-blur-md border border-white/35 rounded-2xl p-3 flex items-center gap-2.5 shadow-sm">
-              <div class="w-9 h-9 rounded-xl bg-white text-blush-600 flex items-center justify-center shrink-0 text-base shadow-sm">
-                💌
-              </div>
-              <div class="min-w-0">
-                <p class="text-[9px] font-extrabold uppercase tracking-widest text-pink-100">RSVP Deadline</p>
-                <p class="font-extrabold text-white text-xs leading-snug">By December 8th</p>
-              </div>
-            </div>
-
-            <!-- Location Full-Width Pill -->
-            <div class="sm:col-span-2 bg-white/20 backdrop-blur-md border border-white/35 rounded-2xl p-3 flex items-center justify-between gap-2.5 shadow-sm">
-              <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-9 h-9 rounded-xl bg-white text-blush-600 flex items-center justify-center shrink-0 text-base shadow-sm">
-                  📍
-                </div>
-                <div class="min-w-0">
-                  <p class="text-[9px] font-extrabold uppercase tracking-widest text-pink-100">Core Club • Kingston</p>
-                  <p class="font-extrabold text-white text-xs truncate">7 HARD END ROAD KINGSTON 10, JAMAICA</p>
-                </div>
-              </div>
-              <a
-                href="https://maps.google.com/?q=Core+Club+17+Hibiscus+Drive+Barbican+Rd+Kingston"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="shrink-0 inline-flex items-center gap-1 text-[11px] font-extrabold text-blush-600 bg-white hover:bg-pink-50 px-3 py-1.5 rounded-xl shadow-sm transition no-underline"
-              >
-                <span>Map ↗</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Interactive "Pack Your Pink Gym Tote" Checklist -->
-          <div class="relative z-10 rounded-2xl bg-white/20 backdrop-blur-md border border-white/40 p-3.5 shadow-inner">
-            <div class="flex items-center justify-between mb-2">
-              <h2 class="font-quicksand font-bold text-xs uppercase tracking-wider text-white flex items-center gap-1.5">
-                <span>👜</span> Tap to Pack Your Tote
-              </h2>
-              <span
-                id="packProgressBadge"
-                class="text-[10px] font-extrabold tracking-wide bg-white text-blush-600 px-2.5 py-0.5 rounded-full shadow-sm transition-all"
-              >
-                0/3 Packed ✨
-              </span>
-            </div>
-
-            <div id="packingList" class="grid grid-cols-1 gap-1.5 text-xs">
-              <!-- Item 1: Sweat Towel -->
-              <button
-                type="button"
-                data-pack-key="Sweat Towel"
-                class="pack-item w-full text-left flex items-center gap-2.5 bg-white/90 hover:bg-white border-2 border-transparent px-3 py-2 rounded-xl cursor-pointer select-none shadow-sm"
-              >
-                <span class="text-base shrink-0">🧖‍♀️</span>
-                <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
-                  <span class="pack-title font-bold text-slate-800 text-xs">Sweat Towel</span>
-                  <span class="text-[10px] font-semibold text-blush-500">Heated class!</span>
-                </div>
-                <span class="pack-check w-5 h-5 rounded-full border-2 border-blush-300 bg-white flex items-center justify-center text-white text-[10px] transition-all shrink-0">
-                  <i class="fa-solid fa-check opacity-0 scale-50 transition-all"></i>
-                </span>
-              </button>
-
-              <!-- Item 2: Water Bottle -->
-              <button
-                type="button"
-                data-pack-key="Water Bottle"
-                class="pack-item w-full text-left flex items-center gap-2.5 bg-white/90 hover:bg-white border-2 border-transparent px-3 py-2 rounded-xl cursor-pointer select-none shadow-sm"
-              >
-                <span class="text-base shrink-0">💧</span>
-                <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
-                  <span class="pack-title font-bold text-slate-800 text-xs">Water Bottle</span>
-                  <span class="text-[10px] font-semibold text-blush-500">Stay hydrated</span>
-                </div>
-                <span class="pack-check w-5 h-5 rounded-full border-2 border-blush-300 bg-white flex items-center justify-center text-white text-[10px] transition-all shrink-0">
-                  <i class="fa-solid fa-check opacity-0 scale-50 transition-all"></i>
-                </span>
-              </button>
-
-              <!-- Item 3: Pilates Grip Socks -->
-              <button
-                type="button"
-                data-pack-key="Pilates Grip Socks"
-                class="pack-item w-full text-left flex items-center gap-2.5 bg-white/90 hover:bg-white border-2 border-transparent px-3 py-2 rounded-xl cursor-pointer select-none shadow-sm"
-              >
-                <span class="text-base shrink-0">🧦</span>
-                <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
-                  <span class="pack-title font-bold text-slate-800 text-xs">Pilates Grip Socks</span>
-                  <span class="text-[10px] font-semibold text-blush-500">If you have them!</span>
-                </div>
-                <span class="pack-check w-5 h-5 rounded-full border-2 border-blush-300 bg-white flex items-center justify-center text-white text-[10px] transition-all shrink-0">
-                  <i class="fa-solid fa-check opacity-0 scale-50 transition-all"></i>
-                </span>
-              </button>
-            </div>
+          <h1 class="font-serif font-bold text-3xl sm:text-[34px] text-white tracking-tight mt-2.5 leading-[1.08]" style="text-shadow:0 2px 0 rgba(0,0,0,.35)">
+            Gabrielle's <span class="font-script font-normal text-black text-[32px] sm:text-[38px]">20th</span><br/>Heated Mat Pilates
+          </h1>
+          <p class="mt-2 text-xs sm:text-[13px] text-white font-semibold leading-snug">🥂 Birthday celebration • Heated Mat Pilates • <strong>Dec 13th</strong></p>
+          <div class="mt-3 inline-flex items-center gap-2 bg-black/80 border border-white/25 rounded-2xl px-3.5 py-1.5">
+            <span class="text-sm">⏳</span>
+            <span id="countdownText" class="text-[11px] font-extrabold tracking-wide text-white">Sun, Dec 13, 2026 • Get Ready to Glow!</span>
           </div>
         </div>
 
-        <!-- ===================================================== -->
-        <!-- RIGHT COLUMN: INTERACTIVE RSVP & MOMENCE CLASS SIGNUP -->
-        <!-- ===================================================== -->
-        <div class="md:col-span-6 p-5 sm:p-7 flex flex-col justify-between bg-gradient-to-br from-white via-blush-50/80 to-pink-100/70 relative">
-
-          <!-- Decorative Top Right Invitation Crest & Cheer Button -->
-          <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-blush-200/80">
-            <div class="flex items-center gap-2">
-              <span class="px-2.5 py-1 rounded-lg bg-blush-500 text-white font-extrabold text-[10px] tracking-widest uppercase shadow-sm">
-                20TH SOIRÉE
-              </span>
-              <span class="text-[11px] font-bold text-blush-600">HEATED MAT CELEBRATION</span>
+        <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div class="bg-black/80 border border-white/25 rounded-2xl p-3 flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-blush-500 flex items-center justify-center shrink-0 text-base">🗓️</div>
+            <div class="min-w-0"><p class="text-[9px] font-extrabold uppercase tracking-widest text-blush-300">Date</p><p class="font-extrabold text-white text-xs leading-snug">Sun, Dec 13th, 2026</p></div>
+          </div>
+          <div class="bg-black/80 border border-white/25 rounded-2xl p-3 flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-blush-500 flex items-center justify-center shrink-0 text-base">⏰</div>
+            <div class="min-w-0"><p class="text-[9px] font-extrabold uppercase tracking-widest text-blush-300">Arrive • Class</p><p class="font-extrabold text-white text-xs leading-snug">8:45 AM • 9:00 AM</p></div>
+          </div>
+          <div class="bg-black/80 border border-white/25 rounded-2xl p-3 flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-blush-500 flex items-center justify-center shrink-0 text-base">💗</div>
+            <div class="min-w-0"><p class="text-[9px] font-extrabold uppercase tracking-widest text-blush-300">Heated Mat Class</p><p class="font-extrabold text-white text-xs leading-snug">$3,500 per spot</p></div>
+          </div>
+          <div class="bg-black/80 border border-white/25 rounded-2xl p-3 flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-blush-500 flex items-center justify-center shrink-0 text-base">💌</div>
+            <div class="min-w-0"><p class="text-[9px] font-extrabold uppercase tracking-widest text-blush-300">RSVP Deadline</p><p class="font-extrabold text-white text-xs leading-snug">By December 8th</p></div>
+          </div>
+          <div class="sm:col-span-2 bg-black/80 border border-white/25 rounded-2xl p-3 flex items-center justify-between gap-2.5">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-blush-500 flex items-center justify-center shrink-0 text-base">📍</div>
+              <div class="min-w-0"><p class="text-[9px] font-extrabold uppercase tracking-widest text-blush-300">Core Club • Kingston</p><p class="font-extrabold text-white text-xs truncate">7 HARD END ROAD KINGSTON 10, JAMAICA</p></div>
             </div>
-            <button
-              id="cheerBtn"
-              type="button"
-              title="Send birthday sparkles to Gabrielle!"
-              class="inline-flex items-center gap-1 text-[11px] font-extrabold text-blush-600 bg-white hover:bg-blush-100 border border-blush-200 px-3 py-1 rounded-full shadow-sm transition active:scale-90 cursor-pointer"
-            >
-              <span>🥂 Cheer 20!</span>
+            <a href="https://maps.app.goo.gl/BsaRSWQWAWLmJzqc8" target="_blank" rel="noopener noreferrer" class="shrink-0 inline-flex items-center gap-1 text-[11px] font-extrabold text-black bg-white hover:bg-pink-100 px-3 py-1.5 rounded-xl transition no-underline">Map ↗</a>
+          </div>
+        </div>
+
+        <div class="relative z-10 rounded-2xl bg-black/80 border border-white/25 p-3.5">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="font-quicksand font-bold text-xs uppercase tracking-wider text-white flex items-center gap-1.5"><span>👜</span> Tap to Pack Your Tote</h2>
+            <span id="packProgressBadge" class="text-[10px] font-extrabold tracking-wide bg-blush-500 text-black px-2.5 py-0.5 rounded-full transition-all">0/3 Packed ✨</span>
+          </div>
+          <div id="packingList" class="grid grid-cols-1 gap-1.5 text-xs">
+            <button type="button" data-pack-key="Sweat Towel" class="pack-item w-full text-left flex items-center gap-2.5 bg-white hover:bg-pink-50 border-2 border-transparent px-3 py-2 rounded-xl cursor-pointer select-none">
+              <span class="text-base shrink-0">🧖‍♀️</span>
+              <div class="flex-1 min-w-0 flex items-center justify-between gap-2"><span class="pack-title font-bold text-black text-xs">Sweat Towel</span><span class="text-[10px] font-semibold text-blush-600">Heated class!</span></div>
+              <span class="pack-check w-5 h-5 rounded-full border-2 border-blush-300 bg-white flex items-center justify-center text-white text-[10px] transition-all shrink-0"><i class="fa-solid fa-check opacity-0 scale-50 transition-all"></i></span>
+            </button>
+            <button type="button" data-pack-key="Water Bottle" class="pack-item w-full text-left flex items-center gap-2.5 bg-white hover:bg-pink-50 border-2 border-transparent px-3 py-2 rounded-xl cursor-pointer select-none">
+              <span class="text-base shrink-0">💧</span>
+              <div class="flex-1 min-w-0 flex items-center justify-between gap-2"><span class="pack-title font-bold text-black text-xs">Water Bottle</span><span class="text-[10px] font-semibold text-blush-600">Stay hydrated</span></div>
+              <span class="pack-check w-5 h-5 rounded-full border-2 border-blush-300 bg-white flex items-center justify-center text-white text-[10px] transition-all shrink-0"><i class="fa-solid fa-check opacity-0 scale-50 transition-all"></i></span>
+            </button>
+            <button type="button" data-pack-key="Pilates Grip Socks" class="pack-item w-full text-left flex items-center gap-2.5 bg-white hover:bg-pink-50 border-2 border-transparent px-3 py-2 rounded-xl cursor-pointer select-none">
+              <span class="text-base shrink-0">🧦</span>
+              <div class="flex-1 min-w-0 flex items-center justify-between gap-2"><span class="pack-title font-bold text-black text-xs">Pilates Grip Socks</span><span class="text-[10px] font-semibold text-blush-600">If you have them!</span></div>
+              <span class="pack-check w-5 h-5 rounded-full border-2 border-blush-300 bg-white flex items-center justify-center text-white text-[10px] transition-all shrink-0"><i class="fa-solid fa-check opacity-0 scale-50 transition-all"></i></span>
             </button>
           </div>
-
-          <!-- STATE 0: INITIAL RSVP FORM -->
-          <div id="rsvpPromptBox" class="my-auto space-y-3.5">
-              <div class="text-center md:text-left">
-                <h2 class="font-serif font-bold text-xl sm:text-2xl text-slate-800 mt-2 leading-snug">
-                  Will you join me for Heated Mat Pilates?
-                </h2>
-                <p class="text-xs text-slate-500 mt-1">
-                    Grab your spot on Momence!
-                </p>
-              </div>
-
-              <!-- Guest Name & Optional Birthday Note Inputs -->
-              <div class="space-y-2">
-                <input
-                  id="guestNameInput"
-                  type="text"
-                  placeholder="Your name *"
-                  class="w-full text-xs font-semibold text-slate-800 placeholder-slate-400 bg-white border-2 border-blush-200 focus:border-blush-400 focus:outline-none rounded-xl px-3.5 py-2.5 transition"
-                />
-                <p id="nameValidationMsg" class="hidden text-[11px] font-bold text-blush-600 px-1">
-                  Please enter your name before RSVPing! 💕
-                </p>
-
-                <input
-                  id="guestNoteInput"
-                  type="text"
-                  placeholder="Optional birthday note or @handle..."
-                  class="w-full text-xs font-medium text-slate-700 placeholder-slate-400 bg-white/90 border border-blush-200 focus:border-blush-400 focus:outline-none rounded-xl px-3.5 py-2 transition"
-                />
-              </div>
-
-              <!-- Optional Vibe Selector Pills -->
-              <div>
-                <p class="text-[10px] font-extrabold uppercase tracking-wider text-blush-500 mb-1.5">
-                  Pick Your Class Vibe (Optional)
-                </p>
-                <div class="flex flex-wrap gap-1.5">
-                  <button
-                    type="button"
-                    data-vibe="🔥 Ready to Sweat"
-                    class="vibe-pill text-[11px] font-bold text-blush-700 bg-white hover:bg-blush-50 border border-blush-200 px-2.5 py-1 rounded-full cursor-pointer"
-                  >
-                    🔥 Ready to Sweat
-                  </button>
-                  <button
-                    type="button"
-                    data-vibe="✨ Here for the Vibes"
-                    class="vibe-pill text-[11px] font-bold text-blush-700 bg-white hover:bg-blush-50 border border-blush-200 px-2.5 py-1 rounded-full cursor-pointer"
-                  >
-                    ✨ Here for the Vibes
-                  </button>
-                  <button
-                    type="button"
-                    data-vibe="💗 Sculpt Mode"
-                    class="vibe-pill text-[11px] font-bold text-blush-700 bg-white hover:bg-blush-50 border border-blush-200 px-2.5 py-1 rounded-full cursor-pointer"
-                  >
-                    💗 Sculpt Mode
-                  </button>
-                </div>
-              </div>
-
-              <!-- Yes / No Action Buttons -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                <button
-                  id="rsvpYesBtn"
-                  type="button"
-                  class="btn-hotpink text-white font-bold text-sm py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>Yes, I'm in! 💖</span>
-                </button>
-
-                <button
-                  id="rsvpNoBtn"
-                  type="button"
-                  class="bg-white hover:bg-blush-50 text-blush-600 font-bold text-sm py-3.5 px-4 rounded-2xl border-2 border-blush-200 hover:border-blush-300 shadow-sm transition active:scale-95 cursor-pointer"
-                >
-                  Can't make it 💌
-                </button>
-              </div>
-            </div>
-
-            <!-- ===================================================== -->
-            <!-- STATE A: YES RESPONSE + MOMENCE BOOKING CTA           -->
-            <!-- ===================================================== -->
-            <div id="rsvpYesResult" class="hidden my-auto rounded-2xl bg-gradient-to-br from-blush-50 via-white to-pink-100/70 border-2 border-blush-400 p-5 text-center space-y-3.5 shadow-md">
-              <div class="flex items-center justify-center">
-                <span id="yesSaveBadge" class="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-3.5 py-1 rounded-full">
-                  <i class="fa-solid fa-circle-check"></i> You're on the VIP List!
-                </span>
-              </div>
-
-              <div>
-                <h3 id="yesHeadline" class="font-serif font-bold text-xl text-blush-600">
-                  You're on the VIP List!
-                </h3>
-                <p id="yesSummaryTags" class="text-[11px] font-bold text-blush-600 mt-1"></p>
-                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
-                  Next step: tap below to officially reserve your <strong>$3,500</strong> spot on <strong>Momence</strong> for the <strong>9:00 AM Heated Mat Pilates</strong> class!
-                </p>
-              </div>
-
-              <!-- Prominent Pulsing Momence Sign-Up CTA -->
-              <a
-                href="https://momence.com/Core-Club-JA/Hot-Pilates-sculpt-/128745801?skipPreview=true"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn-hotpink btn-momence-pulse w-full text-white font-extrabold text-xs sm:text-sm py-4 px-4 rounded-2xl flex items-center justify-center gap-2 no-underline"
-              >
-                <span>Reserve Your Heated Mat Spot on Momence ($3,500) ✨</span>
-                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-              </a>
-
-              <p class="text-[11px] text-blush-700 font-medium bg-blush-100/80 rounded-xl py-2 px-3">
-                ⏰ Arrive by <strong>8:45 AM</strong> • Sun, Dec 13th at Core Club
-              </p>
-
-              <!-- Helper Actions -->
-              <div class="flex flex-wrap items-center justify-center gap-2 pt-0.5">
-                <button
-                  id="copyDetailsBtn"
-                  type="button"
-                  class="inline-flex items-center gap-1.5 text-xs font-bold text-blush-600 bg-white hover:bg-blush-50 border border-blush-200 px-3 py-2 rounded-xl transition cursor-pointer"
-                >
-                  <i class="fa-regular fa-calendar-plus"></i>
-                  <span id="copyBtnText">Copy Details</span>
-                </button>
-
-                <button
-                  type="button"
-                  onclick="replayEntireInvitation()"
-                  class="inline-flex items-center gap-1 text-xs font-bold text-blush-600 bg-blush-50 hover:bg-blush-100 border border-blush-200 px-3 py-2 rounded-xl transition cursor-pointer"
-                >
-                  <span>↻ Replay Invitation</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- ===================================================== -->
-            <!-- STATE B: NO RESPONSE (WARM MESSAGE + EXIT / REPLAY)   -->
-            <!-- ===================================================== -->
-            <div id="rsvpNoResult" class="hidden my-auto rounded-2xl bg-blush-50/90 border-2 border-blush-200 p-5 text-center space-y-3.5">
-              <div class="flex items-center justify-center">
-                <span id="noSaveBadge" class="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider bg-blush-100 text-blush-700 border border-blush-200 px-3.5 py-1 rounded-full">
-                  <i class="fa-solid fa-heart"></i> Note Sent to Gabrielle
-                </span>
-              </div>
-              <h3 id="noHeadline" class="font-serif font-bold text-xl text-slate-800">
-                We'll miss you on the mat!
-              </h3>
-              <p id="noBodyMessage" class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                We'll miss you on the mat! Sending you big hugs — we'll celebrate together soon 💕
-              </p>
-
-              <div class="pt-2 flex flex-wrap items-center justify-center gap-2.5">
-                <button
-                  id="exitInviteBtn"
-                  type="button"
-                  class="bg-blush-500 hover:bg-blush-600 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition cursor-pointer"
-                >
-                  Exit Invitation
-                </button>
-                <button
-                  type="button"
-                  onclick="replayEntireInvitation()"
-                  class="text-xs font-bold text-blush-600 bg-white hover:bg-blush-50 border border-blush-200 px-4 py-2.5 rounded-xl transition cursor-pointer"
-                >
-                  ↻ Replay Invitation
-                </button>
-              </div>
-            </div>
-
-            <!-- Bottom Signature Strip inside Right Column -->
-            <div class="pt-3 mt-3 border-t border-blush-200/80 flex items-center justify-between text-xs">
-              <div class="flex items-center gap-1.5">
-                <span class="inline-block w-2 h-2 rounded-full bg-blush-500"></span>
-                <span class="font-extrabold text-[10px] tracking-widest uppercase text-blush-500">CORE CLUB • DEC 13</span>
-              </div>
-              <span class="font-script text-xl text-blush-600">xoxo, Gabrielle 💋</span>
-            </div>
-
-          </div>
+        </div>
       </div>
-    </article>
-  </section>
 
-  <!-- ========================================================= -->
-  <!-- VIEW 3: GRACEFUL GOODBYE / EXIT SCREEN                    -->
-  <!-- ========================================================= -->
-  <section
-    id="goodbyeView"
-    class="hidden w-full max-w-[420px] bg-white/95 backdrop-blur-md rounded-[32px] border-2 border-blush-200 shadow-xl p-8 text-center space-y-4 z-30 my-auto"
-  >
-    <div class="w-16 h-16 rounded-full bg-blush-100 text-blush-500 flex items-center justify-center mx-auto text-3xl shadow-inner">
-      💌
+      <!-- RIGHT: RSVP -->
+      <div class="md:col-span-6 right-panel p-5 sm:p-7 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-blush-500/50">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-blush-500 text-black font-extrabold text-[10px] tracking-widest uppercase">20TH SOIRÉE</span>
+            <span class="text-[11px] font-bold text-blush-300">HEATED MAT CELEBRATION</span>
+          </div>
+          <button id="cheerBtn" type="button" title="Send birthday sparkles to Gabrielle!" class="inline-flex items-center gap-1 text-[11px] font-extrabold text-white bg-black hover:bg-zinc-900 border border-blush-500 px-3 py-1 rounded-full transition active:scale-90 cursor-pointer">🥂 Cheer 20!</button>
+        </div>
+
+        <!-- STATE 0 -->
+        <div id="rsvpPromptBox" class="my-auto space-y-3.5">
+          <div class="text-center md:text-left">
+            <h2 class="font-serif font-bold text-xl sm:text-2xl text-white mt-2 leading-snug">Will you join me for Heated Mat Pilates?</h2>
+            <p class="text-xs text-zinc-400 mt-1">Grab your spot on Momence!</p>
+          </div>
+          <div class="space-y-2">
+            <input id="guestNameInput" type="text" placeholder="Your name *" class="dark-input w-full text-xs font-semibold rounded-xl px-3.5 py-2.5 transition" />
+            <p id="nameValidationMsg" class="hidden text-[11px] font-bold text-blush-300 px-1">Please enter your name before RSVPing! 💕</p>
+            <input id="guestNoteInput" type="text" placeholder="Optional birthday note or @handle..." class="dark-input w-full text-xs font-medium rounded-xl px-3.5 py-2 transition" />
+          </div>
+          <div>
+            <p class="text-[10px] font-extrabold uppercase tracking-wider text-blush-300 mb-1.5">Pick Your Class Vibe (Optional)</p>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" data-vibe="🔥 Ready to Sweat" class="vibe-pill text-[11px] font-bold px-2.5 py-1 rounded-full cursor-pointer">🔥 Ready to Sweat</button>
+              <button type="button" data-vibe="✨ Here for the Vibes" class="vibe-pill text-[11px] font-bold px-2.5 py-1 rounded-full cursor-pointer">✨ Here for the Vibes</button>
+              <button type="button" data-vibe="💗 Sculpt Mode" class="vibe-pill text-[11px] font-bold px-2.5 py-1 rounded-full cursor-pointer">💗 Sculpt Mode</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <button id="rsvpYesBtn" type="button" class="btn-hotpink font-bold text-sm py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 cursor-pointer">Yes, I'm in! 💖</button>
+            <button id="rsvpNoBtn" type="button" class="bg-black hover:bg-zinc-900 text-white font-bold text-sm py-3.5 px-4 rounded-2xl border-2 border-blush-500/50 hover:border-blush-500 transition active:scale-95 cursor-pointer">Can't make it 💌</button>
+          </div>
+        </div>
+
+        <!-- STATE A -->
+        <div id="rsvpYesResult" class="hidden my-auto rounded-2xl bg-black border-2 border-blush-500 p-5 text-center space-y-3.5 shadow-[0_0_30px_rgba(255,46,147,.3)]">
+          <div class="flex items-center justify-center">
+            <span id="yesSaveBadge" class="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider bg-blush-500 text-black px-3.5 py-1 rounded-full"><i class="fa-solid fa-circle-check"></i> You're on the VIP List!</span>
+          </div>
+          <div>
+            <h3 id="yesHeadline" class="font-serif font-bold text-xl text-white">You're on the VIP List!</h3>
+            <p id="yesSummaryTags" class="text-[11px] font-bold text-blush-300 mt-1"></p>
+            <p class="text-xs text-zinc-300 mt-2 leading-relaxed">Next step: tap below to officially reserve your <strong class="text-white">$3,500</strong> spot on <strong class="text-white">Momence</strong> for the <strong class="text-white">9:00 AM Heated Mat Pilates</strong> class!</p>
+          </div>
+          <a href="https://momence.com/Core-Club-JA/Hot-Pilates-sculpt-/128745801?skipPreview=true" target="_blank" rel="noopener noreferrer" class="btn-hotpink btn-momence-pulse w-full font-extrabold text-xs sm:text-sm py-4 px-4 rounded-2xl flex items-center justify-center gap-2 no-underline">
+            <span>Reserve Your Heated Mat Spot on Momence ($3,500) ✨</span><i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+          </a>
+          <p class="text-[11px] text-blush-200 font-medium bg-blush-500/15 border border-blush-500/50 rounded-xl py-2 px-3">⏰ Arrive by <strong>8:45 AM</strong> • Sun, Dec 13th at Core Club</p>
+          <div class="flex flex-wrap items-center justify-center gap-2 pt-0.5">
+            <button id="copyDetailsBtn" type="button" class="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-black hover:bg-zinc-900 border border-blush-500/50 px-3 py-2 rounded-xl transition cursor-pointer"><i class="fa-regular fa-calendar-plus"></i><span id="copyBtnText">Copy Details</span></button>
+            <button type="button" onclick="replayEntireInvitation()" class="inline-flex items-center gap-1 text-xs font-bold text-blush-300 bg-zinc-900 hover:bg-zinc-800 border border-blush-500/50 px-3 py-2 rounded-xl transition cursor-pointer">↻ Replay Invitation</button>
+          </div>
+        </div>
+
+        <!-- STATE B -->
+        <div id="rsvpNoResult" class="hidden my-auto rounded-2xl bg-black border-2 border-blush-500/60 p-5 text-center space-y-3.5">
+          <div class="flex items-center justify-center">
+            <span id="noSaveBadge" class="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider bg-zinc-900 text-blush-300 border border-blush-500/50 px-3.5 py-1 rounded-full"><i class="fa-solid fa-heart"></i> Note Sent to Gabrielle</span>
+          </div>
+          <h3 id="noHeadline" class="font-serif font-bold text-xl text-white">We'll miss you on the mat!</h3>
+          <p id="noBodyMessage" class="text-xs sm:text-sm text-zinc-300 leading-relaxed">We'll miss you on the mat! Sending you big hugs — we'll celebrate together soon 💕</p>
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-2.5">
+            <button id="exitInviteBtn" type="button" class="btn-hotpink font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition cursor-pointer">Exit Invitation</button>
+            <button type="button" onclick="replayEntireInvitation()" class="text-xs font-bold text-white bg-black hover:bg-zinc-900 border border-blush-500/50 px-4 py-2.5 rounded-xl transition cursor-pointer">↻ Replay Invitation</button>
+          </div>
+        </div>
+
+        <div class="pt-3 mt-3 border-t border-blush-500/50 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-1.5"><span class="inline-block w-2 h-2 rounded-full bg-blush-500"></span><span class="font-extrabold text-[10px] tracking-widest uppercase text-blush-300">CORE CLUB • DEC 13</span></div>
+          <span class="font-script text-xl text-blush-300">xoxo, Gabrielle 💋</span>
+        </div>
+      </div>
     </div>
-    <h2 class="font-serif font-bold text-2xl text-slate-800">Invitation Closed 💕</h2>
-    <p class="text-sm text-slate-600 leading-relaxed">
-      Thank you for responding to Gabrielle's 20th Birthday celebration! Sending you lots of love — you may close this window anytime.
-    </p>
-    <div class="pt-2 flex items-center justify-center">
-      <button
-        id="reopenInviteBtn"
-        type="button"
-        class="text-xs font-bold text-white bg-blush-500 hover:bg-blush-600 px-5 py-2.5 rounded-full shadow-sm transition cursor-pointer"
-      >
-        ↻ Replay Invitation
-      </button>
-    </div>
-  </section>
+  </article>
+</section>
 
-  <!-- ========================================================= -->
-  <!-- JAVASCRIPT INTERACTIVITY & SUPABASE INTEGRATION           -->
-  <!-- ========================================================= -->
-  <script>
-    // Initialize Supabase Client
-    const SUPABASE_URL = 'https://nkmaffvmxtaczswzhpqf.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_TXCJQ_5M9UeAN8dBRK2Ogw_bKFWU13M';
-    let supabaseClient = null;
-    try {
-      if (window.supabase && typeof window.supabase.createClient === 'function') {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      }
-    } catch (err) {
-      console.warn('Supabase initialization note:', err);
+<!-- ============ VIEW 3: GOODBYE ============ -->
+<section id="goodbyeView" class="hidden w-full max-w-[420px] bg-black rounded-[32px] border-2 border-blush-500 shadow-[0_0_50px_rgba(255,46,147,.4)] p-8 text-center space-y-4 z-30 my-auto">
+  <div class="w-16 h-16 rounded-full bg-blush-500/20 border border-blush-500 flex items-center justify-center mx-auto text-3xl">💌</div>
+  <h2 class="font-serif font-bold text-2xl text-white">Invitation Closed 💕</h2>
+  <p class="text-sm text-zinc-300 leading-relaxed">Thank you for responding to Gabrielle's 20th Birthday celebration! Sending you lots of love — you may close this window anytime.</p>
+  <div class="pt-2 flex items-center justify-center">
+    <button id="reopenInviteBtn" type="button" class="text-xs font-bold text-black bg-blush-500 hover:bg-blush-400 px-5 py-2.5 rounded-full transition cursor-pointer">↻ Replay Invitation</button>
+  </div>
+</section>
+
+<script>
+const SUPABASE_URL = 'https://nkmaffvmxtaczswzhpqf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_TXCJQ_5M9UeAN8dBRK2Ogw_bKFWU13M';
+let supabaseClient = null;
+try {
+  if (window.supabase && typeof window.supabase.createClient === 'function') supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (err) { console.warn('Supabase initialization note:', err); }
+
+const $ = (id) => document.getElementById(id);
+const envelopeView = $('envelopeView'), envelopeBox = $('envelopeBox'), waxSealBtn = $('waxSealBtn'), tapPromptBtn = $('tapPromptBtn');
+const invitationView = $('invitationView'), goodbyeView = $('goodbyeView'), replayEnvelopeBtn = $('replayEnvelopeBtn');
+const guestNameInput = $('guestNameInput'), guestNoteInput = $('guestNoteInput'), nameValidationMsg = $('nameValidationMsg');
+const rsvpPromptBox = $('rsvpPromptBox'), rsvpYesBtn = $('rsvpYesBtn'), rsvpNoBtn = $('rsvpNoBtn');
+const rsvpYesResult = $('rsvpYesResult'), rsvpNoResult = $('rsvpNoResult');
+const yesHeadline = $('yesHeadline'), yesSummaryTags = $('yesSummaryTags'), noHeadline = $('noHeadline'), noBodyMessage = $('noBodyMessage');
+const yesSaveBadge = $('yesSaveBadge'), noSaveBadge = $('noSaveBadge');
+const packProgressBadge = $('packProgressBadge'), packItems = document.querySelectorAll('.pack-item'), packedSet = new Set();
+const vibePills = document.querySelectorAll('.vibe-pill'); let selectedVibe = '';
+const copyDetailsBtn = $('copyDetailsBtn'), copyBtnText = $('copyBtnText'), cheerBtn = $('cheerBtn'), countdownText = $('countdownText');
+const PINKS = ['#FF2E93', '#FF85C0', '#FFD9EC', '#FFFFFF', '#000000'];
+const BADGE_IDLE = 'text-[10px] font-extrabold tracking-wide bg-blush-500 text-black px-2.5 py-0.5 rounded-full transition-all';
+
+// Countdown
+function updateCountdown() {
+  if (!countdownText) return;
+  const diff = new Date('2026-12-13T08:45:00') - new Date();
+  if (diff <= 0) { countdownText.textContent = "It's Birthday Pilates Day! See you at 8:45 AM 💖"; return; }
+  const days = Math.floor(diff / 864e5), hours = Math.floor((diff / 36e5) % 24);
+  countdownText.textContent = `${days}d ${hours}h until we sweat & glow! ✨`;
+}
+updateCountdown();
+
+let opened = false;
+
+// ---------- Invitation interactions ----------
+if (cheerBtn) cheerBtn.addEventListener('click', () => {
+  if (typeof confetti !== 'function') return;
+  const r = cheerBtn.getBoundingClientRect();
+  confetti({ particleCount: 28, spread: 55, origin: { x: (r.left + r.width / 2) / innerWidth, y: (r.top + r.height / 2) / innerHeight }, colors: PINKS });
+});
+
+vibePills.forEach((pill) => pill.addEventListener('click', () => {
+  const vibe = pill.getAttribute('data-vibe');
+  if (selectedVibe === vibe) { selectedVibe = ''; pill.classList.remove('active'); }
+  else { vibePills.forEach((p) => p.classList.remove('active')); selectedVibe = vibe; pill.classList.add('active'); }
+}));
+
+packItems.forEach((btn) => btn.addEventListener('click', () => {
+  const key = btn.getAttribute('data-pack-key');
+  const checkCircle = btn.querySelector('.pack-check'), checkIcon = checkCircle.querySelector('i');
+  btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
+  if (packedSet.has(key)) {
+    packedSet.delete(key);
+    btn.classList.remove('checked');
+    checkCircle.classList.remove('bg-blush-500', 'border-blush-500'); checkCircle.classList.add('bg-white', 'border-blush-300');
+    checkIcon.classList.add('opacity-0', 'scale-50');
+  } else {
+    packedSet.add(key);
+    btn.classList.add('checked');
+    checkCircle.classList.remove('bg-white', 'border-blush-300'); checkCircle.classList.add('bg-blush-500', 'border-blush-500');
+    checkIcon.classList.remove('opacity-0', 'scale-50');
+    if (typeof confetti === 'function') {
+      const r = btn.getBoundingClientRect();
+      confetti({ particleCount: 12, spread: 38, startVelocity: 16, scalar: .75, origin: { x: (r.left + r.width / 2) / innerWidth, y: (r.top + r.height / 2) / innerHeight }, colors: PINKS });
     }
+  }
+  const count = packedSet.size;
+  if (count === 3) {
+    packProgressBadge.textContent = 'Ready to glow! 💖';
+    packProgressBadge.className = 'text-[10px] font-extrabold tracking-wide bg-white text-black px-2.5 py-0.5 rounded-full transition-all';
+    if (typeof confetti === 'function') confetti({ particleCount: 34, spread: 55, origin: { y: .6 }, colors: PINKS });
+  } else {
+    packProgressBadge.textContent = `${count}/3 Packed ✨`;
+    packProgressBadge.className = BADGE_IDLE;
+  }
+}));
 
-    const envelopeView = document.getElementById('envelopeView');
-    const envelopeBox = document.getElementById('envelopeBox');
-    const waxSealBtn = document.getElementById('waxSealBtn');
-    const tapPromptBtn = document.getElementById('tapPromptBtn');
-    const invitationView = document.getElementById('invitationView');
-    const replayEnvelopeBtn = document.getElementById('replayEnvelopeBtn');
+function resetPackingList() {
+  packedSet.clear();
+  packItems.forEach((btn) => {
+    btn.classList.remove('checked', 'pop');
+    const c = btn.querySelector('.pack-check'), i = c.querySelector('i');
+    c.classList.remove('bg-blush-500', 'border-blush-500'); c.classList.add('bg-white', 'border-blush-300');
+    i.classList.add('opacity-0', 'scale-50');
+  });
+  packProgressBadge.textContent = '0/3 Packed ✨';
+  packProgressBadge.className = BADGE_IDLE;
+  selectedVibe = ''; vibePills.forEach((p) => p.classList.remove('active'));
+}
 
-    const guestNameInput = document.getElementById('guestNameInput');
-    const guestNoteInput = document.getElementById('guestNoteInput');
-    const nameValidationMsg = document.getElementById('nameValidationMsg');
-    const rsvpPromptBox = document.getElementById('rsvpPromptBox');
-    const rsvpYesBtn = document.getElementById('rsvpYesBtn');
-    const rsvpNoBtn = document.getElementById('rsvpNoBtn');
-    const rsvpYesResult = document.getElementById('rsvpYesResult');
-    const rsvpNoResult = document.getElementById('rsvpNoResult');
-    const yesHeadline = document.getElementById('yesHeadline');
-    const yesSummaryTags = document.getElementById('yesSummaryTags');
-    const noHeadline = document.getElementById('noHeadline');
-    const noBodyMessage = document.getElementById('noBodyMessage');
-    const yesSaveBadge = document.getElementById('yesSaveBadge');
-    const noSaveBadge = document.getElementById('noSaveBadge');
+function firePinkConfetti() {
+  if (typeof confetti !== 'function') return;
+  confetti({ particleCount: 75, spread: 70, origin: { y: .65 }, colors: PINKS });
+  setTimeout(() => {
+    confetti({ particleCount: 45, angle: 60, spread: 55, origin: { x: .1, y: .7 }, colors: PINKS });
+    confetti({ particleCount: 45, angle: 120, spread: 55, origin: { x: .9, y: .7 }, colors: PINKS });
+  }, 220);
+}
 
-    const packProgressBadge = document.getElementById('packProgressBadge');
-    const packItems = document.querySelectorAll('.pack-item');
-    const packedSet = new Set();
+async function saveRsvpToSupabase(payload) {
+  if (!supabaseClient) return false;
+  try {
+    const { error } = await supabaseClient.from('pilates_rsvps').insert([payload]);
+    if (error) { console.warn('Supabase insert note:', error.message); return false; }
+    return true;
+  } catch (err) { console.warn('Supabase network note:', err); return false; }
+}
 
-    const vibePills = document.querySelectorAll('.vibe-pill');
-    let selectedVibe = '';
+function openEnvelope() {
+  if (opened) return;
+  opened = true;
+  envelopeBox.style.transform = '';
+  envelopeBox.classList.add('envelope-open');
+  envelopeView.classList.add('envelope-open-state');
+  tapPromptBtn.style.opacity = '0';
+  if (typeof confetti === 'function') confetti({ particleCount: 50, spread: 80, origin: { y: .55 }, colors: PINKS });
+  setTimeout(() => { envelopeView.style.opacity = '0'; envelopeView.style.transform = 'translateY(-24px) scale(.96)'; }, 480);
+  setTimeout(() => {
+    envelopeView.classList.add('hidden');
+    invitationView.classList.remove('hidden');
+    invitationView.setAttribute('aria-hidden', 'false');
+    void invitationView.offsetWidth;
+    invitationView.classList.add('visible');
+    if (typeof confetti === 'function') confetti({ particleCount: 35, spread: 60, origin: { y: .5 }, colors: PINKS });
+  }, 850);
+}
 
-    const copyDetailsBtn = document.getElementById('copyDetailsBtn');
-    const copyBtnText = document.getElementById('copyBtnText');
-    const cheerBtn = document.getElementById('cheerBtn');
-    const countdownText = document.getElementById('countdownText');
+function replayEntireInvitation() {
+  invitationView.classList.remove('visible');
+  goodbyeView.classList.add('hidden');
+  setTimeout(() => {
+    invitationView.classList.add('hidden');
+    invitationView.setAttribute('aria-hidden', 'true');
+    resetRsvp(); resetPackingList();
+    if (guestNameInput) guestNameInput.value = '';
+    if (guestNoteInput) guestNoteInput.value = '';
+    if (nameValidationMsg) nameValidationMsg.classList.add('hidden');
+    envelopeBox.classList.remove('envelope-open');
+    envelopeView.classList.remove('envelope-open-state', 'hidden');
+    opened = false;
+    tapPromptBtn.style.opacity = '1';
+    void envelopeView.offsetWidth;
+    envelopeView.style.opacity = '1'; envelopeView.style.transform = 'translateY(0) scale(1)';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 320);
+}
 
-    // Live Countdown to Sunday, December 13th, 2026 at 8:45 AM
-    function updateCountdown() {
-      if (!countdownText) return;
-      const eventDate = new Date('2026-12-13T08:45:00');
-      const now = new Date();
-      const diff = eventDate - now;
-      if (diff <= 0) {
-        countdownText.textContent = "It's Birthday Pilates Day! See you at 8:45 AM 💖";
-        return;
-      }
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      countdownText.textContent = `${days}d ${hours}h until we sweat & glow! ✨`;
-    }
-    updateCountdown();
+if (rsvpYesBtn) rsvpYesBtn.addEventListener('click', async () => {
+  const name = guestNameInput ? guestNameInput.value.trim() : '';
+  const rawNote = guestNoteInput ? guestNoteInput.value.trim() : '';
+  if (!name) { nameValidationMsg.classList.remove('hidden'); guestNameInput.focus(); return; }
+  const combinedNote = [selectedVibe, rawNote].filter(Boolean).join(' — ');
+  const packedArray = Array.from(packedSet);
+  yesHeadline.textContent = `You're on the VIP List, ${name}!`;
+  const tagParts = [];
+  if (selectedVibe) tagParts.push(`Vibe: ${selectedVibe}`);
+  if (packedArray.length > 0) tagParts.push(`Packed: ${packedArray.length}/3 items`);
+  yesSummaryTags.textContent = tagParts.join('  •  ');
+  yesSummaryTags.classList.toggle('hidden', tagParts.length === 0);
+  yesSaveBadge.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving VIP RSVP...`;
+  rsvpPromptBox.classList.add('hidden'); rsvpNoResult.classList.add('hidden'); rsvpYesResult.classList.remove('hidden');
+  firePinkConfetti();
+  const saved = await saveRsvpToSupabase({ guest_name: name, status: 'going', note: combinedNote || null, packed_items: packedArray });
+  yesSaveBadge.innerHTML = saved
+    ? `<i class="fa-solid fa-circle-check"></i> Saved to Gabrielle's VIP List!`
+    : `<i class="fa-solid fa-circle-check"></i> You're on the VIP List!`;
+});
 
-    if (cheerBtn) {
-      cheerBtn.addEventListener('click', () => {
-        if (typeof confetti === 'function') {
-          const rect = cheerBtn.getBoundingClientRect();
-          confetti({
-            particleCount: 28,
-            spread: 55,
-            origin: {
-              x: (rect.left + rect.width / 2) / window.innerWidth,
-              y: (rect.top + rect.height / 2) / window.innerHeight
-            },
-            colors: ['#FF4D94', '#FF85B3', '#FFD700', '#FFFFFF']
-          });
-        }
-      });
-    }
+if (rsvpNoBtn) rsvpNoBtn.addEventListener('click', async () => {
+  const name = guestNameInput ? guestNameInput.value.trim() : '';
+  const rawNote = guestNoteInput ? guestNoteInput.value.trim() : '';
+  if (!name) { nameValidationMsg.classList.remove('hidden'); guestNameInput.focus(); return; }
+  const combinedNote = [selectedVibe, rawNote].filter(Boolean).join(' — ');
+  noHeadline.textContent = `We'll miss you on the mat, ${name}!`;
+  noBodyMessage.textContent = `We'll miss you on the mat, ${name}! Sending you big hugs — we'll celebrate together soon 💕`;
+  noSaveBadge.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sending Note...`;
+  rsvpPromptBox.classList.add('hidden'); rsvpYesResult.classList.add('hidden'); rsvpNoResult.classList.remove('hidden');
+  const saved = await saveRsvpToSupabase({ guest_name: name, status: 'declined', note: combinedNote || null, packed_items: [] });
+  noSaveBadge.innerHTML = saved ? `<i class="fa-solid fa-heart"></i> Sent to Gabrielle` : `<i class="fa-solid fa-heart"></i> Response Noted`;
+});
 
-    // Interactive Vibe Selector Pills
-    vibePills.forEach((pill) => {
-      pill.addEventListener('click', () => {
-        const vibe = pill.getAttribute('data-vibe');
-        if (selectedVibe === vibe) {
-          selectedVibe = '';
-          pill.classList.remove('active');
-        } else {
-          vibePills.forEach((p) => p.classList.remove('active'));
-          selectedVibe = vibe;
-          pill.classList.add('active');
-        }
-      });
-    });
+function resetRsvp() {
+  rsvpYesResult.classList.add('hidden'); rsvpNoResult.classList.add('hidden'); rsvpPromptBox.classList.remove('hidden');
+}
 
-    // Interactive Packing Checklist Handler with Mini Sparkle Burst
-    packItems.forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const key = btn.getAttribute('data-pack-key');
-        const checkCircle = btn.querySelector('.pack-check');
-        const checkIcon = checkCircle.querySelector('i');
+if (copyDetailsBtn) copyDetailsBtn.addEventListener('click', () => {
+  const summaryText =
+    `💗 Gabrielle's 20th Birthday — Heated Mat Pilates 💗\n` +
+    `📅 Date: Sunday, December 13th, 2026\n` +
+    `⏰ Time: Arrive 8:45 AM (Class starts at 9:00 AM)\n` +
+    `💵 Cost: $3,500\n` +
+    `💌 RSVP By: December 8th\n` +
+    `📍 Location: Core Club, 17 Hibiscus Drive, Barbican Rd, Kingston\n` +
+    `✨ Bring: Sweat towel, water bottle & Pilates grip socks\n` +
+    `🔗 Sign up: https://momence.com/Core-Club-JA/Hot-Pilates-sculpt-/128745801?skipPreview=true`;
+  const t = document.createElement('textarea');
+  t.value = summaryText; t.style.position = 'fixed'; t.style.opacity = '0';
+  document.body.appendChild(t); t.select();
+  try {
+    document.execCommand('copy');
+    copyBtnText.textContent = 'Copied! ✨';
+    setTimeout(() => { copyBtnText.textContent = 'Copy Details'; }, 2500);
+  } catch (err) { copyBtnText.textContent = 'Ready to share!'; }
+  document.body.removeChild(t);
+});
 
-        btn.classList.remove('pop');
-        void btn.offsetWidth;
-        btn.classList.add('pop');
+const exitInviteBtn = $('exitInviteBtn'), reopenInviteBtn = $('reopenInviteBtn');
+if (exitInviteBtn) exitInviteBtn.addEventListener('click', () => {
+  invitationView.classList.remove('visible');
+  setTimeout(() => { invitationView.classList.add('hidden'); goodbyeView.classList.remove('hidden'); }, 320);
+  try { window.close(); } catch (e) {}
+});
 
-        if (packedSet.has(key)) {
-          packedSet.delete(key);
-          btn.classList.remove('checked');
-          checkCircle.classList.remove('bg-blush-500', 'border-blush-500');
-          checkCircle.classList.add('bg-white', 'border-blush-300');
-          checkIcon.classList.add('opacity-0', 'scale-50');
-        } else {
-          packedSet.add(key);
-          btn.classList.add('checked');
-          checkCircle.classList.remove('bg-white', 'border-blush-300');
-          checkCircle.classList.add('bg-blush-500', 'border-blush-500');
-          checkIcon.classList.remove('opacity-0', 'scale-50');
+waxSealBtn.addEventListener('click', (e) => { e.stopPropagation(); openEnvelope(); });
+envelopeBox.addEventListener('click', openEnvelope);
+tapPromptBtn.addEventListener('click', openEnvelope);
+replayEnvelopeBtn.addEventListener('click', replayEntireInvitation);
+reopenInviteBtn.addEventListener('click', replayEntireInvitation);
+guestNameInput.addEventListener('input', () => { if (guestNameInput.value.trim()) nameValidationMsg.classList.add('hidden'); });
+</script>
 
-          // Mini sparkle burst at click location
-          if (typeof confetti === 'function') {
-            const rect = btn.getBoundingClientRect();
-            const originX = (rect.left + rect.width / 2) / window.innerWidth;
-            const originY = (rect.top + rect.height / 2) / window.innerHeight;
-            confetti({
-              particleCount: 12,
-              spread: 38,
-              startVelocity: 16,
-              scalar: 0.75,
-              origin: { x: originX, y: originY },
-              colors: ['#FF4D94', '#FFC2DA', '#FFD700']
-            });
-          }
-        }
-
-        const count = packedSet.size;
-        if (count === 3) {
-          packProgressBadge.textContent = 'Ready to glow! 💖';
-          packProgressBadge.className =
-            'text-[10px] font-extrabold tracking-wide bg-yellow-300 text-blush-700 px-2.5 py-0.5 rounded-full shadow-sm transition-all';
-          if (typeof confetti === 'function') {
-            confetti({
-              particleCount: 34,
-              spread: 55,
-              origin: { y: 0.6 },
-              colors: ['#FF4D94', '#FFC2DA', '#FFD700']
-            });
-          }
-        } else {
-          packProgressBadge.textContent = `${count}/3 Packed ✨`;
-          packProgressBadge.className =
-            'text-[10px] font-extrabold tracking-wide bg-white text-blush-600 px-2.5 py-0.5 rounded-full shadow-sm transition-all';
-        }
-      });
-    });
-
-    // Reset packing list & vibe pills helper for full replay
-    function resetPackingList() {
-      packedSet.clear();
-      packItems.forEach((btn) => {
-        btn.classList.remove('checked', 'pop');
-        const checkCircle = btn.querySelector('.pack-check');
-        const checkIcon = checkCircle.querySelector('i');
-        checkCircle.classList.remove('bg-blush-500', 'border-blush-500');
-        checkCircle.classList.add('bg-white', 'border-blush-300');
-        checkIcon.classList.add('opacity-0', 'scale-50');
-      });
-      packProgressBadge.textContent = '0/3 Packed ✨';
-      packProgressBadge.className =
-        'text-[10px] font-extrabold tracking-wide bg-white text-blush-600 px-2.5 py-0.5 rounded-full shadow-sm transition-all';
-
-      selectedVibe = '';
-      vibePills.forEach((p) => p.classList.remove('active'));
-    }
-
-    // Trigger celebratory pink confetti burst
-    function firePinkConfetti() {
-      if (typeof confetti !== 'function') return;
-      const colors = ['#FF4D94', '#FF85B3', '#FFC2DA', '#DB1D6B', '#FFD700'];
-      confetti({
-        particleCount: 75,
-        spread: 70,
-        origin: { y: 0.65 },
-        colors: colors
-      });
-      setTimeout(() => {
-        confetti({
-          particleCount: 45,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0.1, y: 0.7 },
-          colors: colors
-        });
-        confetti({
-          particleCount: 45,
-          angle: 120,
-          spread: 55,
-          origin: { x: 0.9, y: 0.7 },
-          colors: colors
-        });
-      }, 220);
-    }
-
-    // Save RSVP to Supabase pilates_rsvps table gracefully
-    async function saveRsvpToSupabase(payload) {
-      if (!supabaseClient) return false;
-      try {
-        const { error } = await supabaseClient
-          .from('pilates_rsvps')
-          .insert([payload]);
-        if (error) {
-          console.warn('Supabase insert note:', error.message);
-          return false;
-        }
-        return true;
-      } catch (err) {
-        console.warn('Supabase network note:', err);
-        return false;
-      }
-    }
-
-    // Open envelope animation -> reveal portrait card
-    function openEnvelope() {
-      envelopeBox.classList.add('envelope-open');
-      tapPromptBtn.style.opacity = '0';
-
-      setTimeout(() => {
-        envelopeView.style.opacity = '0';
-        envelopeView.style.transform = 'translateY(-24px) scale(0.96)';
-      }, 480);
-
-      setTimeout(() => {
-        envelopeView.classList.add('hidden');
-        invitationView.classList.remove('hidden');
-        invitationView.setAttribute('aria-hidden', 'false');
-
-        // Trigger reflow before adding visible transition class
-        void invitationView.offsetWidth;
-        invitationView.classList.add('visible');
-
-        // Gentle sparkle burst on reveal
-        if (typeof confetti === 'function') {
-          confetti({
-            particleCount: 35,
-            spread: 60,
-            origin: { y: 0.5 },
-            colors: ['#FF6BA6', '#FFC2DA', '#F43F8A']
-          });
-        }
-      }, 850);
-    }
-
-    // Replay the ENTIRE invitation from the beginning (sealed envelope + reset state)
-    function replayEntireInvitation() {
-      invitationView.classList.remove('visible');
-      goodbyeView.classList.add('hidden');
-
-      setTimeout(() => {
-        invitationView.classList.add('hidden');
-        invitationView.setAttribute('aria-hidden', 'true');
-
-        // Reset RSVP, inputs, and packing checklist
-        resetRsvp();
-        resetPackingList();
-        if (guestNameInput) guestNameInput.value = '';
-        if (guestNoteInput) guestNoteInput.value = '';
-        if (nameValidationMsg) nameValidationMsg.classList.add('hidden');
-
-        // Reset envelope flap & seal
-        envelopeBox.classList.remove('envelope-open');
-        tapPromptBtn.style.opacity = '1';
-        envelopeView.classList.remove('hidden');
-
-        void envelopeView.offsetWidth;
-        envelopeView.style.opacity = '1';
-        envelopeView.style.transform = 'translateY(0) scale(1)';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 320);
-    }
-    // Handle "Yes, I'm in!" RSVP
-    if (rsvpYesBtn) {
-      rsvpYesBtn.addEventListener('click', async () => {
-        const name = guestNameInput ? guestNameInput.value.trim() : '';
-        const rawNote = guestNoteInput ? guestNoteInput.value.trim() : '';
-
-        if (!name) {
-          if (nameValidationMsg) nameValidationMsg.classList.remove('hidden');
-          if (guestNameInput) guestNameInput.focus();
-          return;
-        }
-
-        const combinedNote = [selectedVibe, rawNote].filter(Boolean).join(' — ');
-        const packedArray = Array.from(packedSet);
-
-        if (yesHeadline) yesHeadline.textContent = `You're on the VIP List, ${name}!`;
-        const tagParts = [];
-        if (selectedVibe) tagParts.push(`Vibe: ${selectedVibe}`);
-        if (packedArray.length > 0) tagParts.push(`Packed: ${packedArray.length}/3 items`);
-        if (yesSummaryTags) {
-          yesSummaryTags.textContent = tagParts.join('  •  ');
-          yesSummaryTags.classList.toggle('hidden', tagParts.length === 0);
-        }
-
-        if (yesSaveBadge) yesSaveBadge.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving VIP RSVP...`;
-
-        if (rsvpPromptBox) rsvpPromptBox.classList.add('hidden');
-        if (rsvpNoResult) rsvpNoResult.classList.add('hidden');
-        if (rsvpYesResult) rsvpYesResult.classList.remove('hidden');
-
-        firePinkConfetti();
-
-        const saved = await saveRsvpToSupabase({
-          guest_name: name,
-          status: 'going',
-          note: combinedNote || null,
-          packed_items: packedArray
-        });
-
-        if (yesSaveBadge) {
-          yesSaveBadge.innerHTML = saved
-            ? `<i class="fa-solid fa-circle-check"></i> Saved to Gabrielle's VIP List!`
-            : `<i class="fa-solid fa-circle-check"></i> You're on the VIP List!`;
-        }
-      });
-    }
-
-    // Handle "Can't make it" RSVP
-    if (rsvpNoBtn) {
-      rsvpNoBtn.addEventListener('click', async () => {
-        const name = guestNameInput ? guestNameInput.value.trim() : '';
-        const rawNote = guestNoteInput ? guestNoteInput.value.trim() : '';
-
-        if (!name) {
-          if (nameValidationMsg) nameValidationMsg.classList.remove('hidden');
-          if (guestNameInput) guestNameInput.focus();
-          return;
-        }
-
-        const combinedNote = [selectedVibe, rawNote].filter(Boolean).join(' — ');
-
-        if (noHeadline) noHeadline.textContent = `We'll miss you on the mat, ${name}!`;
-        if (noBodyMessage) noBodyMessage.textContent = `We'll miss you on the mat, ${name}! Sending you big hugs — we'll celebrate together soon 💕`;
-        if (noSaveBadge) noSaveBadge.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sending Note...`;
-
-        if (rsvpPromptBox) rsvpPromptBox.classList.add('hidden');
-        if (rsvpYesResult) rsvpYesResult.classList.add('hidden');
-        if (rsvpNoResult) rsvpNoResult.classList.remove('hidden');
-
-        const saved = await saveRsvpToSupabase({
-          guest_name: name,
-          status: 'declined',
-          note: combinedNote || null,
-          packed_items: []
-        });
-
-        if (noSaveBadge) {
-          noSaveBadge.innerHTML = saved
-            ? `<i class="fa-solid fa-heart"></i> Sent to Gabrielle`
-            : `<i class="fa-solid fa-heart"></i> Response Noted`;
-        }
-      });
-    }
-
-    // Allow user to change RSVP selection
-    function resetRsvp() {
-      if (rsvpYesResult) rsvpYesResult.classList.add('hidden');
-      if (rsvpNoResult) rsvpNoResult.classList.add('hidden');
-      if (rsvpPromptBox) rsvpPromptBox.classList.remove('hidden');
-    }
-
-    // Copy event details using execCommand fallback for seamless iFrame support
-    if (copyDetailsBtn) {
-      copyDetailsBtn.addEventListener('click', () => {
-        const summaryText =
-          `💗 Gabrielle's 20th Birthday — Heated Mat Pilates 💗\n` +
-          `📅 Date: Sunday, December 13th, 2026\n` +
-          `⏰ Time: Arrive 8:45 AM (Class starts at 9:00 AM)\n` +
-          `💵 Cost: $3,500\n` +
-          `💌 RSVP By: December 8th\n` +
-          `📍 Location: Core Club, 17 Hibiscus Drive, Barbican Rd, Kingston\n` +
-          `✨ Bring: Sweat towel, water bottle & Pilates grip socks\n` +
-          `🔗 Sign up: https://momence.com/Core-Club-JA/Hot-Pilates-sculpt-/128745801?skipPreview=true`;
-
-        const tempInput = document.createElement('textarea');
-        tempInput.value = summaryText;
-        tempInput.style.position = 'fixed';
-        tempInput.style.opacity = '0';
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        try {
-          document.execCommand('copy');
-          if (copyBtnText) {
-            copyBtnText.textContent = 'Copied! ✨';
-            setTimeout(() => {
-              copyBtnText.textContent = 'Copy Details';
-            }, 2500);
-          }
-        } catch (err) {
-          if (copyBtnText) copyBtnText.textContent = 'Ready to share!';
-        }
-        document.body.removeChild(tempInput);
-      });
-    }
-
-    const exitInviteBtn = document.getElementById('exitInviteBtn');
-    const reopenInviteBtn = document.getElementById('reopenInviteBtn');
-
-    // Handle Exit / Close Invitation smoothly
-    if (exitInviteBtn) {
-      exitInviteBtn.addEventListener('click', () => {
-        if (invitationView) invitationView.classList.remove('visible');
-        setTimeout(() => {
-          if (invitationView) invitationView.classList.add('hidden');
-          if (goodbyeView) goodbyeView.classList.remove('hidden');
-        }, 320);
-
-        try {
-          window.close();
-        } catch (e) {
-          // Ignored when browser blocks script window close
-        }
-      });
-    }
-
-    // Attach Open, Replay & Name Validation Event Listeners
-    if (waxSealBtn) waxSealBtn.addEventListener('click', openEnvelope);
-    if (tapPromptBtn) tapPromptBtn.addEventListener('click', openEnvelope);
-    if (replayEnvelopeBtn) replayEnvelopeBtn.addEventListener('click', replayEntireInvitation);
-    if (reopenInviteBtn) reopenInviteBtn.addEventListener('click', replayEntireInvitation);
-    if (guestNameInput) {
-      guestNameInput.addEventListener('input', () => {
-        if (guestNameInput.value.trim() && nameValidationMsg) {
-          nameValidationMsg.classList.add('hidden');
-        }
-      });
-    }
-  </script>
-  <!-- ===== INTERACTIVE SOUND (paste this whole block just before </body>) ===== -->
+<!-- ===== INTERACTIVE SOUND ===== -->
 <script>
 (function () {
   var AC = window.AudioContext || window.webkitAudioContext;
@@ -1343,7 +542,6 @@
     return ctx;
   }
 
-  // one soft musical note
   function tone(freq, when, dur, type, vol) {
     var t = ctx.currentTime + (when || 0);
     var o = ctx.createOscillator(), g = ctx.createGain();
@@ -1356,7 +554,6 @@
     o.start(t); o.stop(t + (dur || 0.3) + 0.05);
   }
 
-  // airy paper "whoosh"
   function whoosh(when, dur, from, to) {
     var t = ctx.currentTime + (when || 0), len = dur || 0.5;
     var buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * len), ctx.sampleRate);
@@ -1380,29 +577,30 @@
   }
 
   var sounds = {
-    open: function () {            // envelope opens, card slides out
+    open: function () {
       whoosh(0, 0.55, 400, 3000);
       tone(880, 0, 0.12, 'sine', 0.14);
       arp([C.C6, C.E6, C.G6, C.C7], 0.09, 0.12);
       setTimeout(function () { if (ctx) arp([C.C6, C.E6, C.G6, C.C7], 0.08, 0.1); }, 820);
     },
-    pack: function (n) {           // pitch climbs with each item packed
+    pop: function () { tone(C.G6, 0, 0.08, 'sine', 0.1); tone(C.C7, 0.04, 0.1, 'sine', 0.07); },
+    pack: function (n) {
       var base = [C.E5, C.G5, C.C6][Math.min(n, 3) - 1] || C.E5;
       tone(base, 0, 0.18, 'sine', 0.16); tone(base * 1.5, 0.06, 0.18, 'triangle', 0.08);
     },
     unpack: function () { tone(440, 0, 0.12, 'sine', 0.1); },
     allPacked: function () { arp([C.C5, C.E5, C.G5, C.C6, C.E6], 0.07, 0.13); },
     vibe: function () { tone(C.A5, 0, 0.1, 'sine', 0.12); tone(C.E6, 0.05, 0.12, 'sine', 0.08); },
-    cheer: function () {           // champagne clink + sparkle
+    cheer: function () {
       tone(2400, 0, 0.35, 'sine', 0.12); tone(3200, 0.03, 0.3, 'sine', 0.08);
       whoosh(0.05, 0.25, 2000, 6000);
       arp([C.G6, C.C7], 0.07, 0.08);
     },
-    yes: function () {             // happy celebration fanfare
+    yes: function () {
       arp([C.C5, C.E5, C.G5, C.C6, C.E6, C.G6], 0.08, 0.14);
       tone(C.C6, 0.55, 0.7, 'triangle', 0.1); tone(C.E6, 0.55, 0.7, 'triangle', 0.08); tone(C.G6, 0.55, 0.7, 'triangle', 0.07);
     },
-    no: function () {              // gentle, warm goodbye
+    no: function () {
       tone(C.G5, 0, 0.4, 'sine', 0.11); tone(C.E5, 0.22, 0.5, 'sine', 0.11); tone(C.C5, 0.46, 0.7, 'sine', 0.1);
     },
     oops: function () { tone(220, 0, 0.14, 'sine', 0.13); tone(196, 0.12, 0.2, 'sine', 0.11); },
@@ -1416,14 +614,14 @@
     try { ensure(); sounds[name](arg); } catch (e) {}
   }
 
-  // listen at the capture phase so nothing in the invitation has to change
   document.addEventListener('click', function (e) {
     var t = e.target;
     function hit(sel) { return t.closest && t.closest(sel); }
     var nameEl = document.getElementById('guestNameInput');
     var hasName = !nameEl || nameEl.value.trim().length > 0;
 
-    if (hit('#waxSealBtn, #tapPromptBtn')) return play('open');
+    if (hit('.floater')) return play('pop');
+    if (hit('#waxSealBtn, #tapPromptBtn, #envelopeBox')) return play('open');
     if (hit('.pack-item')) {
       var btn = hit('.pack-item');
       return setTimeout(function () {
@@ -1442,12 +640,11 @@
     if (hit('#exitInviteBtn')) return play('exit');
   }, true);
 
-  // small mute / unmute bubble (bottom-left)
   var mb = document.createElement('button');
   mb.type = 'button';
   mb.setAttribute('aria-label', 'Toggle sound');
   mb.textContent = '🔊';
-  mb.style.cssText = 'position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:100;width:42px;height:42px;border-radius:50%;border:2px solid #fff;background:#ff57a8;color:#fff;font-size:18px;cursor:pointer;box-shadow:0 6px 14px rgba(219,29,107,.35)';
+  mb.style.cssText = 'position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:100;width:42px;height:42px;border-radius:50%;border:2px solid #ff2e93;background:#000;color:#fff;font-size:18px;cursor:pointer;box-shadow:0 6px 14px rgba(255,46,147,.4)';
   mb.addEventListener('click', function () {
     muted = !muted;
     mb.textContent = muted ? '🔇' : '🔊';
@@ -1457,6 +654,5 @@
   document.body.appendChild(mb);
 })();
 </script>
-<!-- ===== END SOUND ===== -->
 </body>
 </html>
